@@ -3119,37 +3119,38 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.5rem 1.25rem;
+  padding: 0.625rem 1.5rem;
   background: linear-gradient(135deg, #FF6B00, #FF3D00);
   border-radius: 30px;
-  font-size: 0.875rem;
-  font-weight: 700;
+  font-size: 1rem;
+  font-weight: 800;
   color: white;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  box-shadow: 0 4px 15px rgba(255, 107, 0, 0.4);
+  letter-spacing: 0.1em;
+  box-shadow: 0 6px 20px rgba(255, 107, 0, 0.6);
   animation: badgePulse 2s ease-in-out infinite;
+  z-index: 1000;
 }
 
 @keyframes badgePulse {
   0%, 100% {
     transform: scale(1);
-    box-shadow: 0 4px 15px rgba(255, 107, 0, 0.4);
+    box-shadow: 0 6px 20px rgba(255, 107, 0, 0.6);
   }
   50% {
-    transform: scale(1.05);
-    box-shadow: 0 6px 25px rgba(255, 107, 0, 0.6);
+    transform: scale(1.08);
+    box-shadow: 0 8px 30px rgba(255, 107, 0, 0.8);
   }
 }
 
 .new-badge::before {
   content: '';
   position: absolute;
-  inset: -2px;
+  inset: -3px;
   border-radius: 30px;
   background: linear-gradient(135deg, #FF6B00, #FF3D00);
-  opacity: 0.5;
-  filter: blur(10px);
+  opacity: 0.6;
+  filter: blur(12px);
   z-index: -1;
   animation: badgeGlow 2s ease-in-out infinite;
 }
@@ -5487,5 +5488,153 @@ input[type="search"]:focus {
   button,
   .btn {
     border: 2px solid currentColor !important;
+  }
+}
+
+/* ========== PAYMENT WARNING SLIDE ========== */
+.payment-warning-container {
+  position: fixed;
+  top: 50%;
+  right: -450px;
+  transform: translateY(-50%);
+  z-index: 9999;
+  transition: right 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.payment-warning-container.visible {
+  right: 2rem;
+}
+
+.payment-warning-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 400px;
+  max-width: 90vw;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, rgba(255, 107, 0, 0.95), rgba(255, 61, 0, 0.95));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow:
+    0 20px 60px rgba(255, 107, 0, 0.5),
+    0 0 40px rgba(255, 107, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  animation: payment-warning-pulse 3s ease-in-out infinite;
+}
+
+@keyframes payment-warning-pulse {
+  0%, 100% {
+    box-shadow:
+      0 20px 60px rgba(255, 107, 0, 0.5),
+      0 0 40px rgba(255, 107, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  }
+  50% {
+    box-shadow:
+      0 20px 70px rgba(255, 107, 0, 0.7),
+      0 0 60px rgba(255, 107, 0, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  }
+}
+
+.payment-warning-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  animation: payment-icon-shake 2s ease-in-out infinite;
+}
+
+@keyframes payment-icon-shake {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  10%, 30% {
+    transform: rotate(-5deg);
+  }
+  20%, 40% {
+    transform: rotate(5deg);
+  }
+  50% {
+    transform: rotate(0deg);
+  }
+}
+
+.payment-warning-content {
+  flex: 1;
+}
+
+.payment-warning-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.02em;
+}
+
+.payment-warning-text {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.95);
+  line-height: 1.5;
+}
+
+.payment-warning-close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.payment-warning-close:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: rotate(90deg);
+}
+
+/* Mobile Responsive */
+@media (max-width: 640px) {
+  .payment-warning-container.visible {
+    right: 1rem;
+    top: auto;
+    bottom: 5rem;
+    transform: none;
+  }
+
+  .payment-warning-card {
+    width: calc(100vw - 2rem);
+    padding: 1.25rem;
+  }
+
+  .payment-warning-icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .payment-warning-title {
+    font-size: 1rem;
+  }
+
+  .payment-warning-text {
+    font-size: 0.8125rem;
   }
 }

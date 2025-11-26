@@ -7,7 +7,7 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { Car, Home, Users, LogOut, Plus, List } from 'lucide-react'
+import { Car, Home, Users, LogOut, Plus, List, Star, Clock, Shield } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 
@@ -19,7 +19,10 @@ export default function Sidebar() {
     { href: '/admin', label: 'Dashboard', icon: Home },
     { href: '/admin/cars', label: 'All Cars', icon: List },
     { href: '/admin/cars/new', label: 'Add New Car', icon: Plus },
+    { href: '/admin/premium-verified', label: 'Premium Verified', icon: Star },
+    { href: '/admin/just-arrived', label: 'Just Arrived', icon: Clock },
     { href: '/admin/dealers', label: 'Dealers', icon: Users },
+    { href: '/admin/dealer-permissions', label: 'Permissions', icon: Shield },
   ]
 
   const handleLogout = async () => {

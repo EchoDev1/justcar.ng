@@ -955,7 +955,7 @@ export default function HomePage() {
           {/* Section Title with NEW Badge */}
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-6xl font-bold mb-4 gradient-text-hero inline-flex items-center gap-4 flex-wrap justify-center">
-              just arriveded
+              Just Arrived
               <span className="new-badge">NEW</span>
             </h2>
             <p className="text-muted text-lg max-w-2xl mx-auto">

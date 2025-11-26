@@ -11,6 +11,7 @@ import { Search, Car as CarIcon, CheckCircle, Shield, Clock, TrendingUp, Award, 
 import AnimatedCounter from '@/components/ui/AnimatedCounter'
 import Button from '@/components/ui/Button'
 import FeaturedCarCard from '@/components/cars/FeaturedCarCard'
+import PaymentWarning from '@/components/ui/PaymentWarning'
 
 export default function HomePage() {
   const [searchTerm, setSearchTerm] = useState('')
@@ -476,6 +477,9 @@ export default function HomePage() {
 
   return (
     <div>
+      {/* Payment Warning Slide */}
+      <PaymentWarning />
+
       {/* Futuristic Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-primary">
         {/* Animated Background Elements */}
@@ -633,8 +637,8 @@ export default function HomePage() {
 
         {/* Scroll Indicator */}
         <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 animate-bounce">
-          <div className="flex flex-col items-center gap-2 text-accent-blue opacity-60">
-            <p className="text-xs uppercase tracking-wider">Scroll Down</p>
+          <div className="flex flex-col items-center gap-2 text-accent-blue">
+            <p className="text-sm uppercase tracking-wider font-semibold">Scroll Down</p>
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
             </svg>
@@ -957,11 +961,13 @@ export default function HomePage() {
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Section Title with NEW Badge */}
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-6xl font-bold mb-4 gradient-text-hero inline-flex items-center gap-4 flex-wrap justify-center">
-              Just Arrived
+            <div className="inline-flex items-center gap-4 flex-wrap justify-center mb-4">
+              <h2 className="text-4xl md:text-6xl font-bold gradient-text-hero">
+                Just Arrived
+              </h2>
               <span className="new-badge">NEW</span>
-            </h2>
-            <p className="text-muted text-lg max-w-2xl mx-austo">
+            </div>
+            <p className="text-muted text-lg max-w-2xl mx-auto">
               Fresh arrivals updated daily. Be the first to discover these premium vehicles.
             </p>
           </div>

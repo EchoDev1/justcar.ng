@@ -5,7 +5,7 @@
 
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Input from '@/components/ui/Input'
 import Select from '@/components/ui/Select'
 import Button from '@/components/ui/Button'
@@ -21,7 +21,7 @@ import {
   CAR_FEATURES
 } from '@/lib/utils'
 
-export default function CarForm({ initialData, dealers, onSubmit, loading }) {
+export default function CarForm({ initialData, dealers, onSubmit, loading, isEdit }) {
   const [formData, setFormData] = useState(initialData || {
     dealer_id: '',
     make: '',
@@ -39,6 +39,8 @@ export default function CarForm({ initialData, dealers, onSubmit, loading }) {
     features: [],
     is_verified: false,
     is_featured: false,
+    is_premium_verified: false,
+    is_just_arrived: false,
     inspection_report: {
       engine: '',
       transmission: '',
@@ -54,6 +56,21 @@ export default function CarForm({ initialData, dealers, onSubmit, loading }) {
 
   const [images, setImages] = useState([])
   const [videoFile, setVideoFile] = useState(null)
+  const [deletedImageIds, setDeletedImageIds] = useState([])
+
+  // Initialize images from initialData when editing
+  useEffect(() => {
+    if (initialData?.car_images) {
+      const existingImages = initialData.car_images
+        .sort((a, b) => a.display_order - b.display_order)
+        .map(img => ({
+          id: img.id,
+          url: img.image_url,
+          is_primary: img.is_primary
+        }))
+      setImages(existingImages)
+    }
+  }, [initialData])
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
@@ -87,14 +104,14 @@ export default function CarForm({ initialData, dealers, onSubmit, loading }) {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    onSubmit({ formData, images, videoFile })
+    onSubmit({ formData, images, videoFile, deletedImageIds })
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
       {/* Basic Information */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-6">Basic Information</h2>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Basic Information</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Select
             label="Dealer"
@@ -231,8 +248,8 @@ export default function CarForm({ initialData, dealers, onSubmit, loading }) {
       </div>
 
       {/* Features */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Car Features</h2>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Car Features</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
           {CAR_FEATURES.map((feature) => (
             <label key={feature} className="flex items-center space-x-2 cursor-pointer">
@@ -242,37 +259,43 @@ export default function CarForm({ initialData, dealers, onSubmit, loading }) {
                 onChange={() => handleFeatureToggle(feature)}
                 className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
               />
-              <span className="text-sm text-gray-700">{feature}</span>
+              <span className="text-sm text-gray-700 dark:text-gray-200">{feature}</span>
             </label>
           ))}
         </div>
       </div>
 
       {/* Images */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Images</h2>
-        <ImageUploader images={images} onImagesChange={setImages} />
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Images</h2>
+        <ImageUploader
+          images={images}
+          onImagesChange={setImages}
+          onImageDelete={(imageId) => {
+            if (imageId) setDeletedImageIds([...deletedImageIds, imageId])
+          }}
+        />
       </div>
 
       {/* Video (Optional) */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Video (Optional)</h2>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Video (Optional)</h2>
         <input
           type="file"
           accept="video/*"
           onChange={(e) => setVideoFile(e.target.files[0])}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         {videoFile && (
-          <p className="mt-2 text-sm text-gray-600">
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
             Selected: {videoFile.name}
           </p>
         )}
       </div>
 
       {/* Inspection Report */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-6">Inspection Report (Optional)</h2>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Inspection Report (Optional)</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Input
             label="Engine Condition"
@@ -353,8 +376,8 @@ export default function CarForm({ initialData, dealers, onSubmit, loading }) {
       </div>
 
       {/* Status */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Status</h2>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Status & Placement</h2>
         <div className="space-y-4">
           <label className="flex items-center space-x-3 cursor-pointer">
             <input
@@ -365,8 +388,8 @@ export default function CarForm({ initialData, dealers, onSubmit, loading }) {
               className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
             />
             <div>
-              <span className="text-sm font-medium text-gray-900">Verified Car</span>
-              <p className="text-xs text-gray-500">Mark this car as verified and inspected</p>
+              <span className="text-sm font-medium text-gray-900 dark:text-white">Verified Car</span>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Mark this car as verified and inspected</p>
             </div>
           </label>
 
@@ -379,10 +402,42 @@ export default function CarForm({ initialData, dealers, onSubmit, loading }) {
               className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
             />
             <div>
-              <span className="text-sm font-medium text-gray-900">Featured Car</span>
-              <p className="text-xs text-gray-500">Display this car in featured section</p>
+              <span className="text-sm font-medium text-gray-900 dark:text-white">Featured Car</span>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Display this car in featured section</p>
             </div>
           </label>
+
+          <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Premium Sections</h3>
+
+            <label className="flex items-center space-x-3 cursor-pointer mb-4">
+              <input
+                type="checkbox"
+                name="is_premium_verified"
+                checked={formData.is_premium_verified}
+                onChange={handleChange}
+                className="w-5 h-5 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+              />
+              <div>
+                <span className="text-sm font-medium text-gray-900 dark:text-white">Premium Verified Collection</span>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Add to exclusive premium verified collection with enhanced visibility</p>
+              </div>
+            </label>
+
+            <label className="flex items-center space-x-3 cursor-pointer">
+              <input
+                type="checkbox"
+                name="is_just_arrived"
+                checked={formData.is_just_arrived}
+                onChange={handleChange}
+                className="w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500"
+              />
+              <div>
+                <span className="text-sm font-medium text-gray-900 dark:text-white">Just Arrived</span>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Display in Just Arrived section (auto-expires after 30 days)</p>
+              </div>
+            </label>
+          </div>
         </div>
       </div>
 

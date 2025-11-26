@@ -4,7 +4,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server'
-import { Car, Users, CheckCircle, Clock } from 'lucide-react'
+import { Car, Users, CheckCircle, Clock, Star, TrendingUp } from 'lucide-react'
 import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
@@ -17,7 +17,9 @@ async function getStats() {
       totalCars: 0,
       verifiedCars: 0,
       totalDealers: 0,
-      recentCars: 0
+      recentCars: 0,
+      premiumVerifiedCars: 0,
+      justArrivedCars: 0
     }
   }
 
@@ -34,6 +36,18 @@ async function getStats() {
       .from('cars')
       .select('*', { count: 'exact', head: true })
       .eq('is_verified', true)
+
+    // Get premium verified cars
+    const { count: premiumVerifiedCars } = await supabase
+      .from('cars')
+      .select('*', { count: 'exact', head: true })
+      .eq('is_premium_verified', true)
+
+    // Get just arrived cars
+    const { count: justArrivedCars } = await supabase
+      .from('cars')
+      .select('*', { count: 'exact', head: true })
+      .eq('is_just_arrived', true)
 
     // Get total dealers
     const { count: totalDealers } = await supabase
@@ -52,7 +66,9 @@ async function getStats() {
       totalCars: totalCars || 0,
       verifiedCars: verifiedCars || 0,
       totalDealers: totalDealers || 0,
-      recentCars: recentCars || 0
+      recentCars: recentCars || 0,
+      premiumVerifiedCars: premiumVerifiedCars || 0,
+      justArrivedCars: justArrivedCars || 0
     }
   } catch (error) {
     console.error('Error fetching stats:', error)
@@ -60,7 +76,9 @@ async function getStats() {
       totalCars: 0,
       verifiedCars: 0,
       totalDealers: 0,
-      recentCars: 0
+      recentCars: 0,
+      premiumVerifiedCars: 0,
+      justArrivedCars: 0
     }
   }
 }
@@ -103,17 +121,31 @@ export default async function AdminDashboard() {
       link: '/admin/cars'
     },
     {
+      title: 'Premium Verified',
+      value: stats.premiumVerifiedCars,
+      icon: Star,
+      color: 'bg-purple-500',
+      link: '/admin/premium-verified'
+    },
+    {
+      title: 'Just Arrived',
+      value: stats.justArrivedCars,
+      icon: TrendingUp,
+      color: 'bg-green-500',
+      link: '/admin/just-arrived'
+    },
+    {
       title: 'Verified Cars',
       value: stats.verifiedCars,
       icon: CheckCircle,
-      color: 'bg-green-500',
+      color: 'bg-teal-500',
       link: '/admin/cars?verified=true'
     },
     {
       title: 'Total Dealers',
       value: stats.totalDealers,
       icon: Users,
-      color: 'bg-purple-500',
+      color: 'bg-indigo-500',
       link: '/admin/dealers'
     },
     {
@@ -133,7 +165,7 @@ export default async function AdminDashboard() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         {statCards.map((stat) => {
           const Icon = stat.icon
           return (

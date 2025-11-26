@@ -76,6 +76,13 @@ export default function CarsPage() {
 
     if (error) {
       console.error('Error fetching cars:', error)
+      console.error('Error details:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      })
+      setCars([])
     } else {
       setCars(data || [])
     }

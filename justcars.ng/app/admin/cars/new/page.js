@@ -54,6 +54,8 @@ export default function NewCarPage() {
           features: formData.features,
           is_verified: formData.is_verified,
           is_featured: formData.is_featured,
+          is_premium_verified: formData.is_premium_verified,
+          is_just_arrived: formData.is_just_arrived,
           inspection_report: formData.inspection_report
         }])
         .select()

@@ -1,12 +1,12 @@
 /**
- * Middleware for Authentication
+ * Proxy for Authentication (Next.js 16+ convention)
  * Protects admin routes and manages session refresh
  */
 
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 
-export async function middleware(request) {
+export async function proxy(request) {
   // TEMPORARILY DISABLED FOR DEVELOPMENT
   // Enable this after adding Supabase credentials to .env.local
 
