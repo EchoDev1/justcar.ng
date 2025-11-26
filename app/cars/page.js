@@ -5,7 +5,7 @@
 
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, Suspense } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useSearchParams } from 'next/navigation'
 import CarGrid from '@/components/cars/CarGrid'
@@ -14,7 +14,7 @@ import SearchBar from '@/components/cars/SearchBar'
 import Loading from '@/components/ui/Loading'
 import Select from '@/components/ui/Select'
 
-export default function CarsPage() {
+function CarsPageContent() {
   const searchParams = useSearchParams()
   const [cars, setCars] = useState([])
   const [loading, setLoading] = useState(true)
@@ -174,5 +174,13 @@ export default function CarsPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function CarsPage() {
+  return (
+    <Suspense fallback={<Loading text="Loading cars..." />}>
+      <CarsPageContent />
+    </Suspense>
   )
 }
