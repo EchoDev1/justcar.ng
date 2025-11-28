@@ -7,10 +7,13 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { MapPin, Gauge, Calendar, CheckCircle, Heart, MessageCircle, Eye, Fuel, Settings } from 'lucide-react'
+import { MapPin, Gauge, Calendar, CheckCircle, Heart, MessageCircle, Eye, Fuel, Settings, ShoppingCart } from 'lucide-react'
 import { formatNaira, formatNumber } from '@/lib/utils'
 import Badge from '@/components/ui/Badge'
+import ChatButton from '@/components/chat/ChatButton'
 import { useState, useRef } from 'react'
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
 
 export default function CarCard({ car, is3D = true }) {
   const [isSaved, setIsSaved] = useState(false)
@@ -18,14 +21,68 @@ export default function CarCard({ car, is3D = true }) {
   const cardRef = useRef(null)
   const [rotateX, setRotateX] = useState(0)
   const [rotateY, setRotateY] = useState(0)
+  const router = useRouter()
+  const supabase = createClient()
 
   // Get primary image or first image
   const primaryImage = car.car_images?.find(img => img.is_primary) || car.car_images?.[0]
   const imageUrl = primaryImage?.image_url || '/images/placeholder-car.jpg'
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault()
-    setIsSaved(!isSaved)
+    e.stopPropagation()
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+
+      if (!user) {
+        // Store car to save after login
+        localStorage.setItem('pendingSaveCar', car.id)
+        router.push(`/buyer/auth?carId=${car.id}&action=save`)
+        return
+      }
+
+      // Check if user is a buyer
+      const { data: buyerData } = await supabase
+        .from('buyers')
+        .select('id')
+        .eq('id', user.id)
+        .single()
+
+      if (!buyerData) {
+        localStorage.setItem('pendingSaveCar', car.id)
+        router.push(`/buyer/auth?carId=${car.id}&action=save`)
+        return
+      }
+
+      if (isSaved) {
+        // Unsave
+        await supabase
+          .from('buyer_saved_cars')
+          .delete()
+          .eq('buyer_id', buyerData.id)
+          .eq('car_id', car.id)
+        setIsSaved(false)
+      } else {
+        // Save
+        await supabase
+          .from('buyer_saved_cars')
+          .insert({
+            buyer_id: buyerData.id,
+            car_id: car.id,
+            interest_level: 'interested'
+          })
+        setIsSaved(true)
+      }
+    } catch (error) {
+      console.error('Error saving car:', error)
+    }
+  }
+
+  const handleBuy = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    router.push(`/buyer/checkout/${car.id}`)
   }
 
   const handleWhatsApp = (e) => {
@@ -181,18 +238,38 @@ export default function CarCard({ car, is3D = true }) {
                 )}
               </div>
 
+              {/* Action Buttons */}
+              <div className="space-y-3 pt-4 border-t border-white/10">
+                {/* Buy Button */}
+                <button
+                  onClick={handleBuy}
+                  className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-4 py-3 rounded-lg font-bold flex items-center justify-center gap-2 transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-green-500/50"
+                >
+                  <ShoppingCart size={18} />
+                  Buy Now
+                </button>
+
+                {/* Chat with Dealer */}
+                {car.dealers && (
+                  <div onClick={(e) => e.preventDefault()}>
+                    <ChatButton
+                      car={car}
+                      dealer={car.dealers}
+                      variant="secondary"
+                    />
+                  </div>
+                )}
+              </div>
+
               {/* Dealer Info */}
               {car.dealers && (
-                <div className="flex items-center justify-between pt-4 border-t border-white/10">
-                  <div className="text-sm text-gray-400">
-                    <span className="font-medium text-white">{car.dealers.name}</span>
-                  </div>
+                <div className="flex items-center justify-between pt-3 text-sm text-gray-400">
+                  <span className="font-medium text-white">{car.dealers.name}</span>
                   <button
                     onClick={handleWhatsApp}
-                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-green-500/50"
+                    className="text-green-400 hover:text-green-300 transition-colors"
                   >
-                    <MessageCircle size={16} />
-                    Contact
+                    WhatsApp
                   </button>
                 </div>
               )}

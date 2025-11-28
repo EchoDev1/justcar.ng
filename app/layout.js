@@ -11,6 +11,7 @@ import BottomNav from '@/components/layout/BottomNav'
 import FloatingWhatsApp from '@/components/ui/FloatingWhatsApp'
 import ScrollProgressBar from '@/components/ui/ScrollProgressBar'
 import NewArrivalToast from '@/components/ui/NewArrivalToast'
+import { AuthProvider } from '@/contexts/AuthContext'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -24,17 +25,19 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={inter.className}>
-        <div className="flex flex-col min-h-screen">
-          <ScrollProgressBar />
-          <Header />
-          <main className="flex-1 pb-20 md:pb-0">
-            {children}
-          </main>
-          <Footer />
-          <BottomNav />
-          <FloatingWhatsApp />
-          <NewArrivalToast />
-        </div>
+        <AuthProvider>
+          <div className="flex flex-col min-h-screen">
+            <ScrollProgressBar />
+            <Header />
+            <main className="flex-1 pb-20 md:pb-0">
+              {children}
+            </main>
+            <Footer />
+            <BottomNav />
+            <FloatingWhatsApp />
+            <NewArrivalToast />
+          </div>
+        </AuthProvider>
       </body>
     </html>
   )

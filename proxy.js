@@ -1,22 +1,15 @@
 /**
- * Proxy for Authentication (Next.js 16+ convention)
- * Protects admin routes and manages session refresh
+ * Middleware for route protection
+ * Handles authentication and authorization for protected routes
  */
 
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 
-export async function proxy(request) {
-  // TEMPORARILY DISABLED FOR DEVELOPMENT
-  // Enable this after adding Supabase credentials to .env.local
-
-  return NextResponse.next()
-
-  /* ENABLE THIS AFTER ADDING SUPABASE CREDENTIALS:
-
+export default async function proxy(req) {
   let response = NextResponse.next({
     request: {
-      headers: request.headers,
+      headers: req.headers,
     },
   })
 
@@ -25,44 +18,105 @@ export async function proxy(request) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     {
       cookies: {
-        getAll() {
-          return request.cookies.getAll()
+        get(name) {
+          return req.cookies.get(name)?.value
         },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            request.cookies.set(name, value)
-          )
-          response = NextResponse.next({
-            request,
+        set(name, value, options) {
+          req.cookies.set({
+            name,
+            value,
+            ...options,
           })
-          cookiesToSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, options)
-          )
+          response = NextResponse.next({
+            request: {
+              headers: req.headers,
+            },
+          })
+          response.cookies.set({
+            name,
+            value,
+            ...options,
+          })
+        },
+        remove(name, options) {
+          req.cookies.set({
+            name,
+            value: '',
+            ...options,
+          })
+          response = NextResponse.next({
+            request: {
+              headers: req.headers,
+            },
+          })
+          response.cookies.set({
+            name,
+            value: '',
+            ...options,
+          })
         },
       },
     }
   )
 
-  // Get user session
-  const { data: { user } } = await supabase.auth.getUser()
+  // Get session
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
+
+  const url = req.nextUrl.clone()
 
   // Protect admin routes
-  if (request.nextUrl.pathname.startsWith('/admin')) {
-    if (!user) {
-      // Redirect to login if not authenticated
-      return NextResponse.redirect(new URL('/login', request.url))
+  if (url.pathname.startsWith('/admin')) {
+    if (!session) {
+      // Not authenticated - redirect to login
+      url.pathname = '/login'
+      url.searchParams.set('redirect', req.nextUrl.pathname)
+      return NextResponse.redirect(url)
+    }
+
+    // Check if user has admin role
+    // You can enhance this by checking a database table or user metadata
+    const isAdmin = session.user.user_metadata?.role === 'admin' ||
+                    session.user.email?.includes('admin@justcars.ng')
+
+    if (!isAdmin) {
+      // Authenticated but not admin - redirect to home
+      url.pathname = '/'
+      return NextResponse.redirect(url)
     }
   }
 
-  // Redirect to admin dashboard if already logged in and trying to access login page
-  if (request.nextUrl.pathname === '/login' && user) {
-    return NextResponse.redirect(new URL('/admin', request.url))
+  // Protect buyer routes
+  if (url.pathname.startsWith('/buyer') && !url.pathname.startsWith('/buyer/auth')) {
+    if (!session) {
+      // Not authenticated - redirect to buyer auth
+      url.pathname = '/buyer/auth'
+      url.searchParams.set('redirect', req.nextUrl.pathname)
+      return NextResponse.redirect(url)
+    }
+  }
+
+  // If user is authenticated and tries to access login/auth pages, redirect appropriately
+  if (session && (url.pathname === '/login' || url.pathname === '/buyer/auth')) {
+    const isAdmin = session.user.user_metadata?.role === 'admin' ||
+                    session.user.email?.includes('admin@justcars.ng')
+
+    const redirectPath = req.nextUrl.searchParams.get('redirect')
+    if (redirectPath) {
+      url.pathname = redirectPath
+      url.searchParams.delete('redirect')
+      return NextResponse.redirect(url)
+    }
+
+    // Redirect authenticated users away from login pages
+    url.pathname = isAdmin ? '/admin' : '/buyer/saved'
+    return NextResponse.redirect(url)
   }
 
   return response
-  */
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/login']
+  matcher: ['/admin/:path*', '/buyer/:path*', '/login', '/buyer/auth'],
 }

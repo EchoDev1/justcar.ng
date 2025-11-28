@@ -16,8 +16,8 @@ export default function BottomNav() {
     { href: '/', icon: Home, label: 'Home' },
     { href: '/cars', icon: Search, label: 'Browse' },
     { href: '/luxury', icon: Car, label: 'Luxury' },
-    { href: '/favorites', icon: Heart, label: 'Saved' },
-    { href: '/login', icon: User, label: 'Account' }
+    { href: '/buyer/saved', icon: Heart, label: 'Saved' },
+    { href: '/buyer/auth', icon: User, label: 'Account' }
   ]
 
   return (
