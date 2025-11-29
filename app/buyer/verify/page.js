@@ -86,17 +86,25 @@ export default function BuyerVerification() {
   const handleFileUpload = async (file) => {
     try {
       setUploadingId(true)
+      setError('')
 
       // Upload to Supabase Storage
+      // File path must be: {buyer_id}/{filename} to match storage policy
       const fileExt = file.name.split('.').pop()
-      const fileName = `${buyer.id}_id_${Date.now()}.${fileExt}`
-      const filePath = `verification-docs/${fileName}`
+      const fileName = `id_document_${Date.now()}.${fileExt}`
+      const filePath = `${buyer.id}/${fileName}`
 
       const { data, error } = await supabase.storage
         .from('verification-documents')
-        .upload(filePath, file)
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        })
 
-      if (error) throw error
+      if (error) {
+        console.error('Storage upload error:', error)
+        throw error
+      }
 
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
@@ -109,7 +117,7 @@ export default function BuyerVerification() {
       setTimeout(() => setSuccess(''), 3000)
     } catch (error) {
       console.error('Upload error:', error)
-      setError('File upload failed. Please try again.')
+      setError(`File upload failed: ${error.message || 'Please try again'}`)
       setUploadingId(false)
     }
   }
