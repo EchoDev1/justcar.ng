@@ -299,8 +299,8 @@ export default function BuyerVerification() {
           <div className="benefits-grid">
             <div className="benefit-card">
               <MessageCircle size={32} />
-              <h3>Chat with Dealers</h3>
-              <p>Only verified buyers can message dealers directly</p>
+              <h3>Instant Chat Access</h3>
+              <p>Message dealers immediately after payment</p>
             </div>
 
             <div className="benefit-card">
@@ -311,8 +311,8 @@ export default function BuyerVerification() {
 
             <div className="benefit-card">
               <Unlock size={32} />
-              <h3>Unlock Features</h3>
-              <p>Access escrow services and premium buyer tools</p>
+              <h3>Instant Escrow Access</h3>
+              <p>Use secure escrow services right away</p>
             </div>
 
             <div className="benefit-card">
@@ -480,9 +480,9 @@ export default function BuyerVerification() {
               <h4>What Happens Next?</h4>
               <ol>
                 <li>Complete payment of {formatNaira(BUYER_VERIFICATION_FEE)}</li>
-                <li>Admin reviews your documents (24-48 hours)</li>
-                <li>Receive verification approval notification</li>
-                <li>Start chatting with dealers immediately</li>
+                <li>Get instant access to chat with dealers</li>
+                <li>Start using escrow services immediately</li>
+                <li>Admin reviews your verification within 24-48 hours (background process)</li>
               </ol>
             </div>
           </div>
@@ -512,31 +512,34 @@ export default function BuyerVerification() {
           <h2>
             {buyer?.verification_status === 'verified'
               ? 'You\'re Verified!'
-              : 'Verification Pending'}
+              : 'Payment Successful - Access Granted!'}
           </h2>
 
           <p>
             {buyer?.verification_status === 'verified'
-              ? 'Your buyer account is fully verified. You can now chat with dealers and use all premium features.'
-              : 'Your documents and payment have been received. Our admin team will review your verification within 24-48 hours.'}
+              ? 'Your buyer account is fully verified. You can chat with dealers and use all premium features.'
+              : 'Your payment has been received! You can now start chatting with dealers and using escrow services immediately.'}
           </p>
 
           {buyer?.verification_status === 'pending' && (
             <div className="pending-info">
               <Info size={24} />
               <div>
-                <h4>Under Review</h4>
-                <p>We'll send you an email once your verification is approved.</p>
+                <h4>Background Verification</h4>
+                <p>Our admin team will review your documents within 24-48 hours. You can use all features while this happens in the background.</p>
               </div>
             </div>
           )}
 
           <div className="success-actions">
-            <button className="verify-btn primary" onClick={() => router.push('/buyer/saved')}>
+            {buyer?.verification_paid && (
+              <button className="verify-btn primary" onClick={() => router.push('/buyer/chats')}>
+                <MessageCircle size={20} />
+                Start Chatting with Dealers
+              </button>
+            )}
+            <button className="verify-btn secondary" onClick={() => router.push('/buyer/saved')}>
               Browse Cars
-            </button>
-            <button className="verify-btn secondary" onClick={() => router.push('/buyer/settings')}>
-              Go to Settings
             </button>
           </div>
         </div>

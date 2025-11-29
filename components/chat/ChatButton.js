@@ -51,9 +51,9 @@ export default function ChatButton({ car, dealer, variant = 'primary' }) {
         return
       }
 
-      // Check if buyer is verified
-      if (buyerData.verification_status !== 'verified') {
-        // Buyer not verified, redirect to verification page
+      // Check if buyer has paid verification fee (immediate access after payment)
+      if (!buyerData.verification_paid) {
+        // Buyer hasn't paid verification fee, redirect to verification page
         localStorage.setItem('pendingChatCar', JSON.stringify({
           carId: car.id,
           dealerId: dealer.id
@@ -63,11 +63,11 @@ export default function ChatButton({ car, dealer, variant = 'primary' }) {
         const shouldVerify = confirm(
           'Chat with dealers is only available to verified buyers.\n\n' +
           'Benefits of verification:\n' +
-          '• Chat directly with dealers\n' +
+          '• Chat directly with dealers immediately after payment\n' +
           '• Build trust and credibility\n' +
           '• Priority treatment from dealers\n' +
           '• Access to escrow services\n\n' +
-          `Verification fee: ₦2,000\n\n` +
+          `Verification fee: ₦2,000 (One-time payment)\n\n` +
           'Would you like to get verified now?'
         )
 

@@ -51,9 +51,9 @@ export default function EscrowButton({ car, dealer, variant = 'primary' }) {
         return
       }
 
-      // Check if buyer is verified
-      if (buyerData.verification_status !== 'verified') {
-        // Buyer not verified, redirect to verification page
+      // Check if buyer has paid verification fee (immediate access after payment)
+      if (!buyerData.verification_paid) {
+        // Buyer hasn't paid verification fee, redirect to verification page
         localStorage.setItem('pendingEscrowCar', JSON.stringify({
           carId: car.id,
           dealerId: dealer.id
@@ -66,9 +66,10 @@ export default function EscrowButton({ car, dealer, variant = 'primary' }) {
           '• Secure payment protection\n' +
           '• Money held safely until you approve the car\n' +
           '• Optional vehicle inspection\n' +
-          '• Fraud protection\n\n' +
+          '• Fraud protection\n' +
+          '• Immediate access after payment\n\n' +
           'You must be verified to use escrow.\n' +
-          'Verification fee: ₦2,000\n\n' +
+          'Verification fee: ₦2,000 (One-time payment)\n\n' +
           'Would you like to get verified now?'
         )
 
