@@ -11,6 +11,7 @@ import { useRouter } from 'next/navigation'
 import { Shield, TrendingUp, Clock, AlertCircle, DollarSign, Users, CheckCircle, XCircle, Search } from 'lucide-react'
 import { formatCurrency } from '@/lib/payments'
 import Loading from '@/components/ui/Loading'
+import { handleAuthError } from '@/lib/auth/session-handler'
 
 export default function AdminEscrowDashboard() {
   const router = useRouter()
@@ -50,10 +51,16 @@ export default function AdminEscrowDashboard() {
       setLoading(true)
 
       // Get current user
-      const { data: { user } } = await supabase.auth.getUser()
+      const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+      // Handle auth errors
+      if (authError) {
+        const wasHandled = await handleAuthError(authError, supabase, router)
+        if (wasHandled) return
+      }
 
       if (!user) {
-        router.push('/admin/auth')
+        router.push('/admin/login')
         return
       }
 
@@ -95,7 +102,25 @@ export default function AdminEscrowDashboard() {
       setLoading(false)
     } catch (error) {
       console.error('Error loading transactions:', error)
-      alert('Failed to load transactions. Please try again.')
+      console.error('Error details:', {
+        message: error?.message,
+        code: error?.code,
+        details: error?.details,
+        hint: error?.hint
+      })
+
+      // Handle potential auth errors
+      const wasHandled = await handleAuthError(error, supabase, router)
+      if (!wasHandled) {
+        // Check if it's a database error
+        if (error?.code === 'PGRST116' || error?.message?.includes('relation') || error?.message?.includes('does not exist')) {
+          console.warn('Database table might not exist. Using empty data.')
+          setTransactions([])
+        } else {
+          alert(`Failed to load transactions: ${error?.message || 'Unknown error'}. Please check console for details.`)
+        }
+      }
+
       setLoading(false)
     }
   }

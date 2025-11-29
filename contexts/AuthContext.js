@@ -27,26 +27,32 @@ export function AuthProvider({ children }) {
   const router = useRouter()
 
   useEffect(() => {
-    // Check active session
-    const getSession = async () => {
+    // Check active session using secure getUser() method
+    const checkUser = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession()
+        const { data: { user }, error } = await supabase.auth.getUser()
 
-        if (session?.user) {
-          setUser(session.user)
-          await determineUserRole(session.user.id)
+        if (error) {
+          console.error('Error getting user:', error)
+          setUser(null)
+          setUserRole(null)
+        } else if (user) {
+          setUser(user)
+          await determineUserRole(user.id)
         } else {
           setUser(null)
           setUserRole(null)
         }
       } catch (error) {
-        console.error('Error getting session:', error)
+        console.error('Error checking user:', error)
+        setUser(null)
+        setUserRole(null)
       } finally {
         setLoading(false)
       }
     }
 
-    getSession()
+    checkUser()
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {

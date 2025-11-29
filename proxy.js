@@ -59,16 +59,18 @@ export default async function proxy(req) {
     }
   )
 
-  // Get session
+  // Get user - using getUser() for secure authentication
+  // In middleware, we need to verify the session is authentic
   const {
-    data: { session },
-  } = await supabase.auth.getSession()
+    data: { user },
+    error
+  } = await supabase.auth.getUser()
 
   const url = req.nextUrl.clone()
 
   // Protect admin routes
   if (url.pathname.startsWith('/admin')) {
-    if (!session) {
+    if (!user || error) {
       // Not authenticated - redirect to login
       url.pathname = '/login'
       url.searchParams.set('redirect', req.nextUrl.pathname)
@@ -77,8 +79,8 @@ export default async function proxy(req) {
 
     // Check if user has admin role
     // You can enhance this by checking a database table or user metadata
-    const isAdmin = session.user.user_metadata?.role === 'admin' ||
-                    session.user.email?.includes('admin@justcars.ng')
+    const isAdmin = user.user_metadata?.role === 'admin' ||
+                    user.email?.includes('admin@justcars.ng')
 
     if (!isAdmin) {
       // Authenticated but not admin - redirect to home
@@ -89,7 +91,7 @@ export default async function proxy(req) {
 
   // Protect buyer routes
   if (url.pathname.startsWith('/buyer') && !url.pathname.startsWith('/buyer/auth')) {
-    if (!session) {
+    if (!user || error) {
       // Not authenticated - redirect to buyer auth
       url.pathname = '/buyer/auth'
       url.searchParams.set('redirect', req.nextUrl.pathname)
@@ -98,9 +100,9 @@ export default async function proxy(req) {
   }
 
   // If user is authenticated and tries to access login/auth pages, redirect appropriately
-  if (session && (url.pathname === '/login' || url.pathname === '/buyer/auth')) {
-    const isAdmin = session.user.user_metadata?.role === 'admin' ||
-                    session.user.email?.includes('admin@justcars.ng')
+  if (user && !error && (url.pathname === '/login' || url.pathname === '/buyer/auth')) {
+    const isAdmin = user.user_metadata?.role === 'admin' ||
+                    user.email?.includes('admin@justcars.ng')
 
     const redirectPath = req.nextUrl.searchParams.get('redirect')
     if (redirectPath) {
