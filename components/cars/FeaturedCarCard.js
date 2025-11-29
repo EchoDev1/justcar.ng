@@ -1,15 +1,16 @@
 /**
  * Featured Car Card with 3D Effects
  * Includes parallax, hover effects, and animations
+ * Optimized with React.memo and lazy loading
  */
 
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, memo, useCallback } from 'react'
 import Link from 'next/link'
 import { CheckCircle, Calendar, Gauge, MapPin, Fuel, Settings, Heart, MessageCircle, Eye } from 'lucide-react'
 
-export default function FeaturedCarCard({ car }) {
+function FeaturedCarCard({ car }) {
   const [isSaved, setIsSaved] = useState(false)
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const cardRef = useRef(null)
@@ -178,3 +179,5 @@ export default function FeaturedCarCard({ car }) {
     </div>
   )
 }
+
+export default memo(FeaturedCarCard)

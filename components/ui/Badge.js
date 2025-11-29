@@ -1,11 +1,13 @@
 /**
  * Reusable Badge Component
  * For displaying status, tags, or labels
+ * Optimized with React.memo for performance
  */
 
+import { memo } from 'react'
 import { cn } from '@/lib/utils'
 
-export default function Badge({
+function Badge({
   children,
   variant = 'default',
   size = 'md',
@@ -34,3 +36,5 @@ export default function Badge({
     </span>
   )
 }
+
+export default memo(Badge)

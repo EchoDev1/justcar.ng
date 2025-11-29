@@ -13,11 +13,11 @@ import Badge from '@/components/ui/Badge'
 import DealerBadge, { DealerBadgeIcon } from '@/components/ui/DealerBadge'
 import ChatButton from '@/components/chat/ChatButton'
 import EscrowButton from '@/components/escrow/EscrowButton'
-import { useState, useRef } from 'react'
+import { useState, useRef, memo } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
-export default function CarCard({ car, is3D = true }) {
+function CarCard({ car, is3D = true }) {
   const [isSaved, setIsSaved] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
   const cardRef = useRef(null)
@@ -143,6 +143,9 @@ export default function CarCard({ car, is3D = true }) {
                 src={imageUrl}
                 alt={`${car.year} ${car.make} ${car.model}`}
                 fill
+                loading="lazy"
+                placeholder="blur"
+                blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNzAwIiBoZWlnaHQ9IjQ3NSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMUIyNTMyIi8+PC9zdmc+"
                 className="object-cover transition-transform duration-700 group-hover:scale-110"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               />
@@ -308,6 +311,9 @@ export default function CarCard({ car, is3D = true }) {
             src={imageUrl}
             alt={`${car.year} ${car.make} ${car.model}`}
             fill
+            loading="lazy"
+            placeholder="blur"
+            blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNzAwIiBoZWlnaHQ9IjQ3NSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjRTVFN0VCIi8+PC9zdmc+"
             className="object-cover hover:scale-105 transition-transform duration-500"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
@@ -387,3 +393,5 @@ export default function CarCard({ car, is3D = true }) {
     </Link>
   )
 }
+
+export default memo(CarCard)

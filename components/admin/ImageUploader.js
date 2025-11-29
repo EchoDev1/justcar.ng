@@ -107,11 +107,14 @@ export default function ImageUploader({ images, onImagesChange }) {
           className="hidden"
           id="image-upload"
         />
-        <label htmlFor="image-upload">
-          <Button type="button" variant="outline" size="sm" className="cursor-pointer">
-            Select Images
-          </Button>
-        </label>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => document.getElementById('image-upload').click()}
+        >
+          Select Images
+        </Button>
       </div>
 
       {/* Image Previews */}

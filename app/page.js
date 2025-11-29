@@ -5,18 +5,28 @@
 
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, memo } from 'react'
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
 import { Search, Car as CarIcon, CheckCircle, Shield, Clock, TrendingUp, Award, Sparkles, ChevronRight, Star, Camera, Clipboard, Tag, ArrowRight, Zap, Filter, Eye, Phone, Send, ChevronUp } from 'lucide-react'
 import AnimatedCounter from '@/components/ui/AnimatedCounter'
 import Button from '@/components/ui/Button'
-import FeaturedCarCard from '@/components/cars/FeaturedCarCard'
 import PaymentWarning from '@/components/ui/PaymentWarning'
+
+// Lazy load below-the-fold components for faster initial page load
+const FeaturedCarCard = dynamic(() => import('@/components/cars/FeaturedCarCard'), {
+  loading: () => <div className="h-96 bg-gray-200 animate-pulse rounded-lg" />,
+  ssr: false // Disable SSR for this component to reduce initial load time
+})
+
+const Testimonials = dynamic(() => import('@/components/ui/Testimonials'), {
+  loading: () => <div className="h-96 bg-gray-800/50 animate-pulse rounded-lg" />,
+  ssr: false
+})
 
 export default function HomePage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [activeFilter, setActiveFilter] = useState(null)
-  const [particles, setParticles] = useState([])
   const [trustCardsVisible, setTrustCardsVisible] = useState([false, false, false, false])
   const [timelineItemsVisible, setTimelineItemsVisible] = useState([false, false, false, false, false])
   const [stepCardsVisible, setStepCardsVisible] = useState([false, false, false])
@@ -27,6 +37,22 @@ export default function HomePage() {
   const [latestArrivals, setLatestArrivals] = useState([])
   const [loadingFeatured, setLoadingFeatured] = useState(true)
   const [loadingLatest, setLoadingLatest] = useState(true)
+
+  // Memoize particles generation for better performance
+  const particles = useMemo(() => {
+    const particleCount = 20 // Reduced from 30 for better performance
+    const newParticles = []
+    for (let i = 0; i < particleCount; i++) {
+      newParticles.push({
+        id: i,
+        left: `${Math.random() * 100}%`,
+        top: `${Math.random() * 100}%`,
+        delay: `${Math.random() * 20}s`,
+        duration: `${15 + Math.random() * 10}s`
+      })
+    }
+    return newParticles
+  }, [])
 
   // Handle scroll for Back to Top button
   useEffect(() => {
@@ -46,23 +72,7 @@ export default function HomePage() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  // Generate random particles for the hero background
-  useEffect(() => {
-    const particleCount = 30
-    const newParticles = []
-
-    for (let i = 0; i < particleCount; i++) {
-      newParticles.push({
-        id: i,
-        left: `${Math.random() * 100}%`,
-        top: `${Math.random() * 100}%`,
-        delay: `${Math.random() * 20}s`,
-        duration: `${15 + Math.random() * 10}s`
-      })
-    }
-
-    setParticles(newParticles)
-  }, [])
+  // Particles are now memoized above for better performance
 
   // Intersection Observer for trust cards animation
   useEffect(() => {

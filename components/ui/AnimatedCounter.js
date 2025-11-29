@@ -5,9 +5,9 @@
 
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, memo, useCallback } from 'react'
 
-export default function AnimatedCounter({
+function AnimatedCounter({
   end,
   duration = 2000,
   suffix = '',
@@ -68,13 +68,13 @@ export default function AnimatedCounter({
     requestAnimationFrame(animate)
   }, [isVisible, end, duration])
 
-  // Format number with separators (commas)
-  const formatNumber = (num) => {
+  // Format number with separators (commas) - memoized for performance
+  const formatNumber = useCallback((num) => {
     if (separator === ',') {
       return num.toLocaleString('en-US')
     }
     return num.toFixed(decimals)
-  }
+  }, [separator, decimals])
 
   return (
     <span ref={counterRef} className="counter-number">
@@ -82,3 +82,5 @@ export default function AnimatedCounter({
     </span>
   )
 }
+
+export default memo(AnimatedCounter)

@@ -1,11 +1,13 @@
 /**
  * Reusable Button Component
  * Supports multiple variants and sizes
+ * Optimized with React.memo for performance
  */
 
+import { memo } from 'react'
 import { cn } from '@/lib/utils'
 
-export default function Button({
+function Button({
   children,
   variant = 'primary',
   size = 'md',
@@ -44,3 +46,5 @@ export default function Button({
     </button>
   )
 }
+
+export default memo(Button)
