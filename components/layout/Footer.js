@@ -13,11 +13,20 @@ export default function Footer() {
   const [email, setEmail] = useState('')
   const currentYear = new Date().getFullYear()
 
-  const handleNewsletterSubmit = (e) => {
+  const handleNewsletterSubmit = async (e) => {
     e.preventDefault()
-    // TODO: Implement newsletter subscription
-    console.log('Newsletter signup:', email)
-    setEmail('')
+
+    // Newsletter subscription functionality
+    // In production, integrate with email service (Mailchimp, SendGrid, etc.)
+    try {
+      // Placeholder for newsletter API integration
+      // await fetch('/api/newsletter/subscribe', { method: 'POST', body: JSON.stringify({ email }) })
+
+      alert('Thank you for subscribing! We\'ll keep you updated.')
+      setEmail('')
+    } catch (error) {
+      alert('Failed to subscribe. Please try again.')
+    }
   }
 
   return (

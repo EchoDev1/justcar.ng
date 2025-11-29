@@ -57,7 +57,9 @@ export default function AdminEscrowDashboard() {
         return
       }
 
-      // TODO: Add admin role check here
+      // SECURITY NOTE: Admin role verification should be implemented
+      // For production, add middleware or RLS policies to verify user has admin privileges
+      // Current implementation only checks authentication, not authorization
 
       // Get all escrow transactions
       const { data: transactionsData, error } = await supabase
