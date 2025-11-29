@@ -32,8 +32,8 @@
    - Click "SQL Editor" in left sidebar
    - Click "New Query"
 
-4. **Copy & Run the Consolidated Migration**
-   - Open this file: `scripts/run-all-migrations.sql`
+4. **Copy & Run the Migration**
+   - Open this file: `RUN_THIS_IN_SUPABASE.sql`
    - Copy **ENTIRE CONTENTS** (Ctrl+A, Ctrl+C)
    - Paste into SQL Editor
    - Click **"Run"** button or press **Ctrl+Enter**
@@ -108,7 +108,7 @@ Visit these pages to confirm:
 - Database migration didn't run
 - Solution:
   - Go back to Supabase Dashboard → SQL Editor
-  - Run the migration again from `scripts/run-all-migrations.sql`
+  - Run the migration again from `RUN_THIS_IN_SUPABASE.sql`
   - Make sure you see "Success" message
 
 ### Error: "Failed to load settings"

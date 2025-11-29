@@ -1,18 +1,21 @@
 -- ========================================
--- RUN ALL MIGRATIONS IN ONE GO
+-- SIMPLE MIGRATION - COPY AND RUN IN SUPABASE SQL EDITOR
 -- ========================================
--- This file consolidates all migrations for easy execution
--- Run this in Supabase SQL Editor to set up your entire database
-
--- IMPORTANT: Run this as a single script in Supabase Dashboard
--- Go to: SQL Editor → New Query → Paste this entire file → Click Run
-
+-- This creates all the tables needed for the admin payment portal
+--
+-- INSTRUCTIONS:
+-- 1. Open Supabase Dashboard: https://supabase.com/dashboard
+-- 2. Select your project
+-- 3. Click "SQL Editor" in the left sidebar
+-- 4. Click "New Query"
+-- 5. Copy this ENTIRE file and paste it
+-- 6. Click "Run" button or press Ctrl+Enter
+-- 7. Wait for "Success" message
+--
+-- That's it! All tables will be created.
 -- ========================================
--- MIGRATION 1: Escrow Transactions Table
--- ========================================
--- Creating escrow transactions table if it doesn't exist
 
--- Check if escrow_transactions table exists, if not create it
+-- Escrow Transactions Table (if you already have this from previous migration, it won't cause an error)
 CREATE TABLE IF NOT EXISTS escrow_transactions (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   car_id UUID REFERENCES cars(id) ON DELETE CASCADE,
@@ -39,34 +42,6 @@ CREATE TABLE IF NOT EXISTS escrow_transactions (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
-
--- Enable RLS on escrow_transactions
-ALTER TABLE escrow_transactions ENABLE ROW LEVEL SECURITY;
-
--- Policies for escrow_transactions
-CREATE POLICY IF NOT EXISTS "Authenticated users can read escrow transactions"
-  ON escrow_transactions
-  FOR SELECT
-  TO authenticated
-  USING (true);
-
-CREATE POLICY IF NOT EXISTS "Authenticated users can insert escrow transactions"
-  ON escrow_transactions
-  FOR INSERT
-  TO authenticated
-  WITH CHECK (true);
-
-CREATE POLICY IF NOT EXISTS "Authenticated users can update escrow transactions"
-  ON escrow_transactions
-  FOR UPDATE
-  TO authenticated
-  USING (true)
-  WITH CHECK (true);
-
--- ========================================
--- MIGRATION 2: Payment Accounts Settings
--- ========================================
--- Creating payment settings tables
 
 -- Payment Settings Table
 CREATE TABLE IF NOT EXISTS payment_settings (
@@ -109,49 +84,72 @@ CREATE TABLE IF NOT EXISTS payment_activity_logs (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- Create indexes
+-- Create indexes for better query performance
 CREATE INDEX IF NOT EXISTS idx_payment_activity_logs_admin_user ON payment_activity_logs(admin_user_id);
 CREATE INDEX IF NOT EXISTS idx_payment_activity_logs_provider ON payment_activity_logs(provider);
 CREATE INDEX IF NOT EXISTS idx_payment_activity_logs_created_at ON payment_activity_logs(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_escrow_bank_accounts_is_default ON escrow_bank_accounts(is_default) WHERE is_default = true;
 CREATE INDEX IF NOT EXISTS idx_escrow_bank_accounts_is_active ON escrow_bank_accounts(is_active) WHERE is_active = true;
 
--- Enable RLS
+-- Enable Row Level Security (RLS)
 ALTER TABLE payment_settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE escrow_bank_accounts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE payment_activity_logs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE escrow_transactions ENABLE ROW LEVEL SECURITY;
 
--- Policies for payment_settings
-CREATE POLICY IF NOT EXISTS "Authenticated users can read payment settings"
+-- RLS Policies for payment_settings
+DROP POLICY IF EXISTS "Authenticated users can read payment settings" ON payment_settings;
+CREATE POLICY "Authenticated users can read payment settings"
   ON payment_settings FOR SELECT TO authenticated USING (true);
 
-CREATE POLICY IF NOT EXISTS "Authenticated users can update payment settings"
+DROP POLICY IF EXISTS "Authenticated users can update payment settings" ON payment_settings;
+CREATE POLICY "Authenticated users can update payment settings"
   ON payment_settings FOR UPDATE TO authenticated USING (true) WITH CHECK (true);
 
-CREATE POLICY IF NOT EXISTS "Authenticated users can insert payment settings"
+DROP POLICY IF EXISTS "Authenticated users can insert payment settings" ON payment_settings;
+CREATE POLICY "Authenticated users can insert payment settings"
   ON payment_settings FOR INSERT TO authenticated WITH CHECK (true);
 
--- Policies for escrow_bank_accounts
-CREATE POLICY IF NOT EXISTS "Authenticated users can read escrow accounts"
+-- RLS Policies for escrow_bank_accounts
+DROP POLICY IF EXISTS "Authenticated users can read escrow accounts" ON escrow_bank_accounts;
+CREATE POLICY "Authenticated users can read escrow accounts"
   ON escrow_bank_accounts FOR SELECT TO authenticated USING (true);
 
-CREATE POLICY IF NOT EXISTS "Authenticated users can insert escrow accounts"
+DROP POLICY IF EXISTS "Authenticated users can insert escrow accounts" ON escrow_bank_accounts;
+CREATE POLICY "Authenticated users can insert escrow accounts"
   ON escrow_bank_accounts FOR INSERT TO authenticated WITH CHECK (true);
 
-CREATE POLICY IF NOT EXISTS "Authenticated users can update escrow accounts"
+DROP POLICY IF EXISTS "Authenticated users can update escrow accounts" ON escrow_bank_accounts;
+CREATE POLICY "Authenticated users can update escrow accounts"
   ON escrow_bank_accounts FOR UPDATE TO authenticated USING (true) WITH CHECK (true);
 
-CREATE POLICY IF NOT EXISTS "Authenticated users can delete escrow accounts"
+DROP POLICY IF EXISTS "Authenticated users can delete escrow accounts" ON escrow_bank_accounts;
+CREATE POLICY "Authenticated users can delete escrow accounts"
   ON escrow_bank_accounts FOR DELETE TO authenticated USING (true);
 
--- Policies for payment_activity_logs
-CREATE POLICY IF NOT EXISTS "Authenticated users can read activity logs"
+-- RLS Policies for payment_activity_logs
+DROP POLICY IF EXISTS "Authenticated users can read activity logs" ON payment_activity_logs;
+CREATE POLICY "Authenticated users can read activity logs"
   ON payment_activity_logs FOR SELECT TO authenticated USING (true);
 
-CREATE POLICY IF NOT EXISTS "Authenticated users can insert activity logs"
+DROP POLICY IF EXISTS "Authenticated users can insert activity logs" ON payment_activity_logs;
+CREATE POLICY "Authenticated users can insert activity logs"
   ON payment_activity_logs FOR INSERT TO authenticated WITH CHECK (true);
 
--- Function to ensure single default escrow account
+-- RLS Policies for escrow_transactions
+DROP POLICY IF EXISTS "Authenticated users can read escrow transactions" ON escrow_transactions;
+CREATE POLICY "Authenticated users can read escrow transactions"
+  ON escrow_transactions FOR SELECT TO authenticated USING (true);
+
+DROP POLICY IF EXISTS "Authenticated users can insert escrow transactions" ON escrow_transactions;
+CREATE POLICY "Authenticated users can insert escrow transactions"
+  ON escrow_transactions FOR INSERT TO authenticated WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Authenticated users can update escrow transactions" ON escrow_transactions;
+CREATE POLICY "Authenticated users can update escrow transactions"
+  ON escrow_transactions FOR UPDATE TO authenticated USING (true) WITH CHECK (true);
+
+-- Function to ensure only one default escrow account
 CREATE OR REPLACE FUNCTION ensure_single_default_escrow_account()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -164,14 +162,14 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Trigger for single default account
+-- Trigger to maintain single default account
 DROP TRIGGER IF EXISTS trigger_ensure_single_default_escrow_account ON escrow_bank_accounts;
 CREATE TRIGGER trigger_ensure_single_default_escrow_account
   BEFORE INSERT OR UPDATE ON escrow_bank_accounts
   FOR EACH ROW
   EXECUTE FUNCTION ensure_single_default_escrow_account();
 
--- Function to update updated_at
+-- Function to update updated_at timestamp
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -180,7 +178,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Triggers for updated_at
+-- Triggers to auto-update updated_at
 DROP TRIGGER IF EXISTS update_payment_settings_updated_at ON payment_settings;
 CREATE TRIGGER update_payment_settings_updated_at
   BEFORE UPDATE ON payment_settings
@@ -193,7 +191,7 @@ CREATE TRIGGER update_escrow_bank_accounts_updated_at
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
 
--- Insert default payment settings
+-- Insert default payment settings (only if table is empty)
 INSERT INTO payment_settings (paystack, flutterwave, monnify, platform)
 SELECT
   '{
@@ -236,13 +234,20 @@ SELECT
 WHERE NOT EXISTS (SELECT 1 FROM payment_settings LIMIT 1);
 
 -- ========================================
--- MIGRATION COMPLETE
+-- MIGRATION COMPLETE! ✅
 -- ========================================
--- All migrations completed successfully!
--- You can now use the admin portal at /admin
 --
--- Tables created:
--- - escrow_transactions
--- - payment_settings
--- - escrow_bank_accounts
--- - payment_activity_logs
+-- Tables created successfully:
+--   ✅ escrow_transactions
+--   ✅ payment_settings
+--   ✅ escrow_bank_accounts
+--   ✅ payment_activity_logs
+--
+-- You can now:
+-- 1. Close this SQL Editor
+-- 2. Go to "Table Editor" to verify tables exist
+-- 3. Open your admin portal: http://localhost:3000/admin/login
+-- 4. Navigate to: http://localhost:3000/admin/payment-accounts
+--
+-- No more errors! Everything should work now.
+-- ========================================

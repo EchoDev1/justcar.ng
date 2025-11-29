@@ -16,7 +16,7 @@ Follow these steps to set up your database:
    - Click "New Query"
 
 3. **Run Migration for Payment Tables**
-   - Copy the entire contents of: `supabase/migrations/20250129_payment_accounts_settings.sql`
+   - Copy the entire contents of: `RUN_THIS_IN_SUPABASE.sql`
    - Paste into the SQL editor
    - Click "Run" or press Ctrl+Enter
    - Wait for "Success" message
