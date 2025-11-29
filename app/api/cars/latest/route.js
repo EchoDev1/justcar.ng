@@ -32,7 +32,6 @@ export async function GET(request) {
         )
       `)
       .in('dealers.badge_type', ['premium', 'luxury'])
-      .eq('status', 'active')
       .order('created_at', { ascending: false })
       .limit(limit)
 
