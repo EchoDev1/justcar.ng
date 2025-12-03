@@ -7,12 +7,27 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 
 export default async function proxy(req) {
+  // Add pathname to request headers so layouts can access it
+  const requestHeaders = new Headers(req.headers)
+  requestHeaders.set('x-pathname', req.nextUrl.pathname)
+
   let response = NextResponse.next({
     request: {
-      headers: req.headers,
+      headers: requestHeaders,
     },
   })
 
+  const url = req.nextUrl.clone()
+
+  // For admin routes, skip Supabase checks in middleware
+  // The admin layout handles all authentication and authorization
+  // This eliminates 700ms+ of overhead from calling Supabase on every request
+  if (url.pathname.startsWith('/admin')) {
+    // Just pass through - let the layout handle authentication
+    return response
+  }
+
+  // Only create Supabase client for non-admin routes that need it
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
@@ -29,7 +44,7 @@ export default async function proxy(req) {
           })
           response = NextResponse.next({
             request: {
-              headers: req.headers,
+              headers: requestHeaders,
             },
           })
           response.cookies.set({
@@ -46,7 +61,7 @@ export default async function proxy(req) {
           })
           response = NextResponse.next({
             request: {
-              headers: req.headers,
+              headers: requestHeaders,
             },
           })
           response.cookies.set({
@@ -59,35 +74,11 @@ export default async function proxy(req) {
     }
   )
 
-  // Get user - using getUser() for secure authentication
-  // In middleware, we need to verify the session is authentic
+  // Get user - only for buyer routes now
   const {
     data: { user },
     error
   } = await supabase.auth.getUser()
-
-  const url = req.nextUrl.clone()
-
-  // Protect admin routes
-  if (url.pathname.startsWith('/admin')) {
-    if (!user || error) {
-      // Not authenticated - redirect to login
-      url.pathname = '/login'
-      url.searchParams.set('redirect', req.nextUrl.pathname)
-      return NextResponse.redirect(url)
-    }
-
-    // Check if user has admin role
-    // You can enhance this by checking a database table or user metadata
-    const isAdmin = user.user_metadata?.role === 'admin' ||
-                    user.email?.includes('admin@justcars.ng')
-
-    if (!isAdmin) {
-      // Authenticated but not admin - redirect to home
-      url.pathname = '/'
-      return NextResponse.redirect(url)
-    }
-  }
 
   // Protect buyer routes
   if (url.pathname.startsWith('/buyer') && !url.pathname.startsWith('/buyer/auth')) {

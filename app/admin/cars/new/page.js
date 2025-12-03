@@ -35,29 +35,36 @@ export default function NewCarPage() {
       const supabase = createClient()
 
       // 1. Create car record
+      const carData = {
+        dealer_id: formData.dealer_id,
+        make: formData.make,
+        model: formData.model,
+        year: parseInt(formData.year),
+        price: parseFloat(formData.price),
+        mileage: parseInt(formData.mileage),
+        condition: formData.condition,
+        body_type: formData.body_type,
+        fuel_type: formData.fuel_type,
+        transmission: formData.transmission,
+        color: formData.color,
+        location: formData.location,
+        description: formData.description,
+        features: formData.features,
+        is_verified: formData.is_verified,
+        is_featured: formData.is_featured,
+        is_premium_verified: formData.is_premium_verified,
+        is_just_arrived: formData.is_just_arrived,
+        inspection_report: formData.inspection_report
+      }
+
+      // Auto-set just_arrived_date if is_just_arrived is true
+      if (formData.is_just_arrived) {
+        carData.just_arrived_date = new Date().toISOString()
+      }
+
       const { data: car, error: carError } = await supabase
         .from('cars')
-        .insert([{
-          dealer_id: formData.dealer_id,
-          make: formData.make,
-          model: formData.model,
-          year: parseInt(formData.year),
-          price: parseFloat(formData.price),
-          mileage: parseInt(formData.mileage),
-          condition: formData.condition,
-          body_type: formData.body_type,
-          fuel_type: formData.fuel_type,
-          transmission: formData.transmission,
-          color: formData.color,
-          location: formData.location,
-          description: formData.description,
-          features: formData.features,
-          is_verified: formData.is_verified,
-          is_featured: formData.is_featured,
-          is_premium_verified: formData.is_premium_verified,
-          is_just_arrived: formData.is_just_arrived,
-          inspection_report: formData.inspection_report
-        }])
+        .insert([carData])
         .select()
         .single()
 

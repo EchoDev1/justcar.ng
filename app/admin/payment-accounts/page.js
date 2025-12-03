@@ -7,7 +7,6 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
 import {
   Settings,
   DollarSign,
@@ -26,10 +25,8 @@ import {
   Link as LinkIcon
 } from 'lucide-react'
 import Loading from '@/components/ui/Loading'
-import { handleAuthError } from '@/lib/auth/session-handler'
 
 export default function PaymentAccountsManagement() {
-  const router = useRouter()
   const supabase = createClient()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -97,19 +94,8 @@ export default function PaymentAccountsManagement() {
     try {
       setLoading(true)
 
-      // Get current user
-      const { data: { user }, error: authError } = await supabase.auth.getUser()
-
-      // Handle auth errors
-      if (authError) {
-        const wasHandled = await handleAuthError(authError, supabase, router)
-        if (wasHandled) return
-      }
-
-      if (!user) {
-        router.push('/admin/login')
-        return
-      }
+      // Note: Authentication is handled by the admin layout (app/admin/layout.js)
+      // This page is already protected - no need for additional auth checks here
 
       // Load payment provider settings from database
       const { data: settings, error: settingsError } = await supabase
@@ -137,23 +123,17 @@ export default function PaymentAccountsManagement() {
       setLoading(false)
     } catch (error) {
       console.error('Error loading settings:', error)
-      console.error('Error details:', {
-        message: error?.message,
-        code: error?.code,
-        details: error?.details,
-        hint: error?.hint
-      })
 
-      // Handle potential auth errors
-      const wasHandled = await handleAuthError(error, supabase, router)
-      if (!wasHandled) {
-        // Check if it's a database error
-        if (error?.code === 'PGRST116' || error?.message?.includes('relation') || error?.message?.includes('does not exist')) {
-          console.warn('Database tables might not exist. Please run migrations.')
-          alert('Database tables not found. Please run the database migration from ADMIN_PAYMENT_SETUP.md')
-        } else {
-          alert(`Failed to load settings: ${error?.message || 'Unknown error'}. Please check console for details.`)
-        }
+      // Check if it's a database error
+      if (error?.code === 'PGRST116' || error?.message?.includes('relation') || error?.message?.includes('does not exist')) {
+        console.warn('Database tables might not exist. Please run migrations.')
+      } else {
+        console.error('Error details:', {
+          message: error?.message,
+          code: error?.code,
+          details: error?.details,
+          hint: error?.hint
+        })
       }
 
       setLoading(false)

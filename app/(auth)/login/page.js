@@ -31,13 +31,28 @@ export default function LoginPage() {
         password,
       })
 
-      if (error) throw error
+      if (error) {
+        // Provide user-friendly error messages based on error type
+        if (error.message.includes('Invalid login credentials')) {
+          throw new Error('Invalid email or password. Please check your credentials and try again.')
+        } else if (error.message.includes('Email not confirmed')) {
+          throw new Error('Please verify your email address before logging in. Check your inbox for the verification link.')
+        } else if (error.message.includes('User not found')) {
+          throw new Error('No account found with this email address. Please sign up first.')
+        } else if (error.message.includes('Too many requests')) {
+          throw new Error('Too many login attempts. Please wait a few minutes and try again.')
+        } else if (error.message.includes('Network')) {
+          throw new Error('Network error. Please check your internet connection and try again.')
+        } else {
+          throw error
+        }
+      }
 
       // Redirect to admin dashboard
       router.push('/admin')
       router.refresh()
     } catch (error) {
-      setError(error.message || 'Invalid login credentials')
+      setError(error.message || 'An unexpected error occurred. Please try again.')
     } finally {
       setLoading(false)
     }

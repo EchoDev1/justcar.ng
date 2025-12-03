@@ -7,7 +7,7 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { MapPin, Gauge, Calendar, CheckCircle, Heart, MessageCircle, Eye, Fuel, Settings } from 'lucide-react'
+import { MapPin, Gauge, Calendar, CheckCircle, Heart, MessageCircle, Eye, Fuel, Settings, Star, Crown } from 'lucide-react'
 import { formatNaira, formatNumber } from '@/lib/utils'
 import Badge from '@/components/ui/Badge'
 import DealerBadge, { DealerBadgeIcon } from '@/components/ui/DealerBadge'
@@ -16,6 +16,7 @@ import EscrowButton from '@/components/escrow/EscrowButton'
 import { useState, useRef, memo } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { safeGetUser } from '@/lib/supabase/auth-utils'
 
 function CarCard({ car, is3D = true }) {
   const [isSaved, setIsSaved] = useState(false)
@@ -28,30 +29,31 @@ function CarCard({ car, is3D = true }) {
 
   // Get primary image or first image
   const primaryImage = car.car_images?.find(img => img.is_primary) || car.car_images?.[0]
-  const imageUrl = primaryImage?.image_url || '/images/placeholder-car.jpg'
+  const imageUrl = primaryImage?.image_url || '/images/placeholder-car.svg'
 
   const handleSave = async (e) => {
     e.preventDefault()
     e.stopPropagation()
 
     try {
-      const { data: { user } } = await supabase.auth.getUser()
+      // Check if user is authenticated - handle session missing gracefully using safe wrapper
+      const user = await safeGetUser(supabase)
 
+      // If no user, redirect to login
       if (!user) {
-        // Store car to save after login
         localStorage.setItem('pendingSaveCar', car.id)
         router.push(`/buyer/auth?carId=${car.id}&action=save`)
         return
       }
 
       // Check if user is a buyer
-      const { data: buyerData } = await supabase
+      const { data: buyerData, error: buyerError } = await supabase
         .from('buyers')
         .select('id')
         .eq('id', user.id)
         .single()
 
-      if (!buyerData) {
+      if (buyerError || !buyerData) {
         localStorage.setItem('pendingSaveCar', car.id)
         router.push(`/buyer/auth?carId=${car.id}&action=save`)
         return
@@ -78,6 +80,9 @@ function CarCard({ car, is3D = true }) {
       }
     } catch (error) {
       console.error('Error saving car:', error)
+      // Redirect to login on any error
+      localStorage.setItem('pendingSaveCar', car.id)
+      router.push(`/buyer/auth?carId=${car.id}&action=save`)
     }
   }
 
@@ -177,10 +182,26 @@ function CarCard({ car, is3D = true }) {
                 {car.condition}
               </div>
 
-              {/* Heart Icon (Save) */}
+              {/* Premium Verified Badge - Bottom Right */}
+              {car.is_premium_verified && (
+                <div className="absolute bottom-3 right-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-gray-900 px-3 py-1.5 rounded-lg text-xs font-bold shadow-lg border border-yellow-300 z-20 flex items-center gap-1.5">
+                  <Star size={14} fill="currentColor" />
+                  <span>PREMIUM</span>
+                </div>
+              )}
+
+              {/* Luxury Dealer Crown Badge - Bottom Right (shows when dealer is luxury and no premium badge) */}
+              {!car.is_premium_verified && car.dealers?.badge_type === 'luxury' && (
+                <div className="absolute bottom-3 right-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-gray-900 px-3 py-1.5 rounded-lg text-xs font-bold shadow-lg border border-yellow-400 z-20 flex items-center gap-1.5">
+                  <Crown size={14} />
+                  <span>LUXURY</span>
+                </div>
+              )}
+
+              {/* Heart Icon (Save) - Repositioned to avoid conflict */}
               <button
                 onClick={handleSave}
-                className="absolute bottom-3 right-3 bg-white/90 backdrop-blur-sm p-2.5 rounded-full shadow-lg hover:bg-white transition-all duration-300 hover:scale-110 active:scale-95"
+                className={`absolute ${car.is_premium_verified || car.dealers?.badge_type === 'luxury' ? 'bottom-3 right-20' : 'bottom-3 right-3'} bg-white/90 backdrop-blur-sm p-2.5 rounded-full shadow-lg hover:bg-white transition-all duration-300 hover:scale-110 active:scale-95`}
               >
                 <Heart
                   size={20}

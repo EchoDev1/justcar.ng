@@ -41,13 +41,33 @@ function CarsPageContent() {
     setLoading(true)
     const supabase = createClient()
 
-    // Build query with count
+    // Optimized query - only select necessary fields for faster loading
     let query = supabase
       .from('cars')
       .select(`
-        *,
-        dealers (name, badge_type),
-        car_images (image_url, is_primary)
+        id,
+        make,
+        model,
+        year,
+        price,
+        mileage,
+        location,
+        fuel_type,
+        transmission,
+        condition,
+        is_verified,
+        is_featured,
+        is_premium_verified,
+        views,
+        dealer_id,
+        dealers!inner (
+          name,
+          badge_type
+        ),
+        car_images!inner (
+          image_url,
+          is_primary
+        )
       `, { count: 'exact' })
 
     // Apply filters

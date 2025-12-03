@@ -24,11 +24,12 @@ export const metadata = {
   title: 'JustCars.ng - Buy Quality Cars in Nigeria',
   description: 'Find your dream car in Nigeria. Browse verified cars from trusted dealers across Lagos, Abuja, Port Harcourt and more.',
   keywords: 'cars for sale Nigeria, buy cars Lagos, Nigerian used cars, foreign used cars, car dealership Nigeria',
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 5,
-  },
+}
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
   themeColor: '#3B82F6',
 }
 

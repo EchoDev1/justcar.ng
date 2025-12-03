@@ -1,10 +1,14 @@
 /**
- * API Route: Fetch Latest Arrivals
- * Returns newest cars from verified premium dealers
+ * API Route: Fetch Latest Arrivals (Just Arrived Cars)
+ * Returns cars marked as just arrived
+ * Uses caching for better performance
  */
 
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+
+// Enable static caching for 5 minutes
+export const revalidate = 300 // 5 minutes
 
 export async function GET(request) {
   try {
@@ -12,43 +16,57 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url)
     const limit = parseInt(searchParams.get('limit') || '5')
 
-    // Fetch latest cars from dealers with 'premium' or 'luxury' badge_type
-    // Order by created_at DESC to show newest arrivals first
+    // Optimized query - only select necessary fields
     const { data: cars, error } = await supabase
       .from('cars')
       .select(`
-        *,
-        dealers!inner (
-          id,
-          name,
-          phone,
-          email,
-          badge_type
-        ),
-        car_images (
-          id,
+        id,
+        make,
+        model,
+        year,
+        price,
+        created_at,
+        just_arrived_date,
+        car_images!inner (
           image_url,
           is_primary
         )
       `)
-      .in('dealers.badge_type', ['premium', 'luxury'])
-      .order('created_at', { ascending: false })
+      .eq('is_just_arrived', true)
+      .order('just_arrived_date', { ascending: false })
       .limit(limit)
 
     if (error) {
       console.error('Error fetching latest cars:', error)
       return NextResponse.json(
-        { error: 'Failed to fetch latest cars' },
-        { status: 500 }
+        { cars: [] },
+        {
+          status: 200,
+          headers: {
+            'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120'
+          }
+        }
       )
     }
 
-    return NextResponse.json({ cars: cars || [] })
+    return NextResponse.json(
+      { cars: cars || [] },
+      {
+        headers: {
+          'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600'
+        }
+      }
+    )
   } catch (error) {
     console.error('Error in latest cars API:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
+      { cars: [] },
+      {
+        status: 200,
+        headers: {
+          'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120'
+        }
+      }
     )
   }
 }

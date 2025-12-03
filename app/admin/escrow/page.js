@@ -7,14 +7,11 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
 import { Shield, TrendingUp, Clock, AlertCircle, DollarSign, Users, CheckCircle, XCircle, Search } from 'lucide-react'
 import { formatCurrency } from '@/lib/payments'
 import Loading from '@/components/ui/Loading'
-import { handleAuthError } from '@/lib/auth/session-handler'
 
 export default function AdminEscrowDashboard() {
-  const router = useRouter()
   const supabase = createClient()
   const [loading, setLoading] = useState(true)
   const [transactions, setTransactions] = useState([])
@@ -50,23 +47,8 @@ export default function AdminEscrowDashboard() {
     try {
       setLoading(true)
 
-      // Get current user
-      const { data: { user }, error: authError } = await supabase.auth.getUser()
-
-      // Handle auth errors
-      if (authError) {
-        const wasHandled = await handleAuthError(authError, supabase, router)
-        if (wasHandled) return
-      }
-
-      if (!user) {
-        router.push('/admin/login')
-        return
-      }
-
-      // SECURITY NOTE: Admin role verification should be implemented
-      // For production, add middleware or RLS policies to verify user has admin privileges
-      // Current implementation only checks authentication, not authorization
+      // Note: Authentication is handled by the admin layout (app/admin/layout.js)
+      // This page is already protected - no need for additional auth checks here
 
       // Get all escrow transactions
       const { data: transactionsData, error } = await supabase
@@ -102,23 +84,18 @@ export default function AdminEscrowDashboard() {
       setLoading(false)
     } catch (error) {
       console.error('Error loading transactions:', error)
-      console.error('Error details:', {
-        message: error?.message,
-        code: error?.code,
-        details: error?.details,
-        hint: error?.hint
-      })
 
-      // Handle potential auth errors
-      const wasHandled = await handleAuthError(error, supabase, router)
-      if (!wasHandled) {
-        // Check if it's a database error
-        if (error?.code === 'PGRST116' || error?.message?.includes('relation') || error?.message?.includes('does not exist')) {
-          console.warn('Database table might not exist. Using empty data.')
-          setTransactions([])
-        } else {
-          alert(`Failed to load transactions: ${error?.message || 'Unknown error'}. Please check console for details.`)
-        }
+      // Check if it's a database error
+      if (error?.code === 'PGRST116' || error?.message?.includes('relation') || error?.message?.includes('does not exist')) {
+        console.warn('Database table might not exist. Using empty data.')
+        setTransactions([])
+      } else {
+        console.error('Error details:', {
+          message: error?.message,
+          code: error?.code,
+          details: error?.details,
+          hint: error?.hint
+        })
       }
 
       setLoading(false)

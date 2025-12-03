@@ -23,17 +23,12 @@ export function ChatProvider({ children }) {
     try {
       const { data: { user }, error: authError } = await supabase.auth.getUser()
 
-      if (authError) {
-        console.error('Auth error in fetchConversations:', authError)
+      // Silently handle auth errors - user is not logged in
+      if (authError || !user) {
+        setConversations([])
+        setLoading(false)
         return
       }
-
-      if (!user) {
-        console.log('No user found in fetchConversations')
-        return
-      }
-
-      console.log('Fetching conversations for user:', user.id)
 
       // Determine user type (buyer, dealer, or admin)
       const { data: buyerData, error: buyerError } = await supabase
@@ -42,21 +37,11 @@ export function ChatProvider({ children }) {
         .eq('id', user.id)
         .single()
 
-      if (buyerError && buyerError.code !== 'PGRST116') {
-        console.error('Error checking buyer:', buyerError)
-      }
-
       const { data: dealerData, error: dealerError } = await supabase
         .from('dealers')
         .select('id')
         .eq('id', user.id)
         .single()
-
-      if (dealerError && dealerError.code !== 'PGRST116') {
-        console.error('Error checking dealer:', dealerError)
-      }
-
-      console.log('User type:', buyerData ? 'buyer' : dealerData ? 'dealer' : 'unknown')
 
       let query = supabase
         .from('conversations')
@@ -78,17 +63,12 @@ export function ChatProvider({ children }) {
       const { data, error } = await query
 
       if (error) {
-        console.error('Database error fetching conversations:', error)
-        console.error('Error details:', {
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-          code: error.code
-        })
-        throw error
+        // Silently handle database errors
+        setConversations([])
+        setLoading(false)
+        return
       }
 
-      console.log('Conversations fetched successfully:', data?.length || 0)
       setConversations(data || [])
 
       // Calculate total unread count
@@ -100,8 +80,10 @@ export function ChatProvider({ children }) {
 
       setUnreadCount(total)
     } catch (error) {
-      console.error('Error fetching conversations:', error)
-      console.error('Full error object:', JSON.stringify(error, null, 2))
+      // Silently handle all conversation errors
+      setConversations([])
+      setUnreadCount(0)
+      setLoading(false)
     }
   }
 
@@ -131,8 +113,10 @@ export function ChatProvider({ children }) {
   // Mark messages as read
   const markMessagesAsRead = async (conversationId) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
+      const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+      // Silently handle auth errors - user is not logged in
+      if (authError || !user) return
 
       // Determine user type
       const { data: buyerData } = await supabase
@@ -174,8 +158,15 @@ export function ChatProvider({ children }) {
   // Send a message
   const sendMessage = async (conversationId, messageText, senderType, senderName) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('User not authenticated')
+      const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+      if (authError) {
+        throw new Error('Authentication required to send messages')
+      }
+
+      if (!user) {
+        throw new Error('User not authenticated')
+      }
 
       const { data, error } = await supabase
         .from('messages')
@@ -260,44 +251,57 @@ export function ChatProvider({ children }) {
 
   // Subscribe to real-time updates
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      if (!data?.user) return
+    let messagesSubscription
+    let conversationsSubscription
 
-      // Subscribe to new messages
-      const messagesSubscription = supabase
-        .channel('messages')
-        .on('postgres_changes', {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'messages'
-        }, (payload) => {
-          // If message is for active conversation, add it
-          if (payload.new.conversation_id === activeConversation?.id) {
-            setMessages(prev => [...prev, payload.new])
-          }
+    const setupSubscriptions = async () => {
+      try {
+        const { data, error } = await supabase.auth.getUser()
 
-          // Refresh conversations to update unread counts
-          fetchConversations()
-        })
-        .subscribe()
+        // Silently handle auth errors - user is not logged in
+        if (error || !data?.user) return
 
-      // Subscribe to conversation updates
-      const conversationsSubscription = supabase
-        .channel('conversations')
-        .on('postgres_changes', {
-          event: '*',
-          schema: 'public',
-          table: 'conversations'
-        }, () => {
-          fetchConversations()
-        })
-        .subscribe()
+        // Subscribe to new messages
+        messagesSubscription = supabase
+          .channel('messages')
+          .on('postgres_changes', {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'messages'
+          }, (payload) => {
+            // If message is for active conversation, add it
+            if (payload.new.conversation_id === activeConversation?.id) {
+              setMessages(prev => [...prev, payload.new])
+            }
 
-      return () => {
-        messagesSubscription.unsubscribe()
-        conversationsSubscription.unsubscribe()
+            // Refresh conversations to update unread counts
+            fetchConversations()
+          })
+          .subscribe()
+
+        // Subscribe to conversation updates
+        conversationsSubscription = supabase
+          .channel('conversations')
+          .on('postgres_changes', {
+            event: '*',
+            schema: 'public',
+            table: 'conversations'
+          }, () => {
+            fetchConversations()
+          })
+          .subscribe()
+      } catch (error) {
+        // Silently handle all subscription errors
+        console.debug('Chat subscriptions not initialized:', error.message)
       }
-    })
+    }
+
+    setupSubscriptions()
+
+    return () => {
+      if (messagesSubscription) messagesSubscription.unsubscribe()
+      if (conversationsSubscription) conversationsSubscription.unsubscribe()
+    }
   }, [activeConversation])
 
   // Initial fetch

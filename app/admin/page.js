@@ -7,12 +7,13 @@ import { createClient } from '@/lib/supabase/server'
 import { Car, Users, CheckCircle, Clock, Star, TrendingUp } from 'lucide-react'
 import Link from 'next/link'
 
+// Revalidate every 30 seconds for near-instant loads
+export const revalidate = 30
 export const dynamic = 'force-dynamic'
 
 async function getStats() {
   // Check if Supabase is configured
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL === 'your_supabase_project_url') {
-    // Return demo data if Supabase is not configured
     return {
       totalCars: 0,
       verifiedCars: 0,
@@ -25,42 +26,25 @@ async function getStats() {
 
   try {
     const supabase = await createClient()
-
-    // Get total cars
-    const { count: totalCars } = await supabase
-      .from('cars')
-      .select('*', { count: 'exact', head: true })
-
-    // Get verified cars
-    const { count: verifiedCars } = await supabase
-      .from('cars')
-      .select('*', { count: 'exact', head: true })
-      .eq('is_verified', true)
-
-    // Get premium verified cars
-    const { count: premiumVerifiedCars } = await supabase
-      .from('cars')
-      .select('*', { count: 'exact', head: true })
-      .eq('is_premium_verified', true)
-
-    // Get just arrived cars
-    const { count: justArrivedCars } = await supabase
-      .from('cars')
-      .select('*', { count: 'exact', head: true })
-      .eq('is_just_arrived', true)
-
-    // Get total dealers
-    const { count: totalDealers } = await supabase
-      .from('dealers')
-      .select('*', { count: 'exact', head: true })
-
-    // Get recent cars (last 7 days)
     const sevenDaysAgo = new Date()
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
-    const { count: recentCars } = await supabase
-      .from('cars')
-      .select('*', { count: 'exact', head: true })
-      .gte('created_at', sevenDaysAgo.toISOString())
+
+    // Ultra-fast parallel queries with count only (no data fetching)
+    const [
+      { count: totalCars },
+      { count: verifiedCars },
+      { count: premiumVerifiedCars },
+      { count: justArrivedCars },
+      { count: totalDealers },
+      { count: recentCars }
+    ] = await Promise.all([
+      supabase.from('cars').select('*', { count: 'exact', head: true }),
+      supabase.from('cars').select('*', { count: 'exact', head: true }).eq('is_verified', true),
+      supabase.from('cars').select('*', { count: 'exact', head: true }).eq('is_premium_verified', true),
+      supabase.from('cars').select('*', { count: 'exact', head: true }).eq('is_just_arrived', true),
+      supabase.from('dealers').select('*', { count: 'exact', head: true }),
+      supabase.from('cars').select('*', { count: 'exact', head: true }).gte('created_at', sevenDaysAgo.toISOString())
+    ])
 
     return {
       totalCars: totalCars || 0,
@@ -84,7 +68,6 @@ async function getStats() {
 }
 
 async function getRecentCars() {
-  // Check if Supabase is configured
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL === 'your_supabase_project_url') {
     return []
   }
@@ -92,12 +75,10 @@ async function getRecentCars() {
   try {
     const supabase = await createClient()
 
+    // Only fetch essential fields for faster query
     const { data: cars } = await supabase
       .from('cars')
-      .select(`
-        *,
-        dealers (name)
-      `)
+      .select('id,year,make,model,location,price,is_verified,is_featured,dealers(name)')
       .order('created_at', { ascending: false })
       .limit(5)
 

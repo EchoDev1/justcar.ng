@@ -69,29 +69,39 @@ export default function EditCarPage() {
       const supabase = createClient()
 
       // 1. Update car record
+      const updateData = {
+        dealer_id: formData.dealer_id,
+        make: formData.make,
+        model: formData.model,
+        year: parseInt(formData.year),
+        price: parseFloat(formData.price),
+        mileage: parseInt(formData.mileage),
+        condition: formData.condition,
+        body_type: formData.body_type,
+        fuel_type: formData.fuel_type,
+        transmission: formData.transmission,
+        color: formData.color,
+        location: formData.location,
+        description: formData.description,
+        features: formData.features,
+        is_verified: formData.is_verified,
+        is_featured: formData.is_featured,
+        is_premium_verified: formData.is_premium_verified,
+        is_just_arrived: formData.is_just_arrived,
+        inspection_report: formData.inspection_report
+      }
+
+      // Auto-set just_arrived_date if is_just_arrived is newly set to true
+      if (formData.is_just_arrived && !car.is_just_arrived) {
+        updateData.just_arrived_date = new Date().toISOString()
+      } else if (!formData.is_just_arrived) {
+        // Clear just_arrived_date if is_just_arrived is set to false
+        updateData.just_arrived_date = null
+      }
+
       const { error: carError } = await supabase
         .from('cars')
-        .update({
-          dealer_id: formData.dealer_id,
-          make: formData.make,
-          model: formData.model,
-          year: parseInt(formData.year),
-          price: parseFloat(formData.price),
-          mileage: parseInt(formData.mileage),
-          condition: formData.condition,
-          body_type: formData.body_type,
-          fuel_type: formData.fuel_type,
-          transmission: formData.transmission,
-          color: formData.color,
-          location: formData.location,
-          description: formData.description,
-          features: formData.features,
-          is_verified: formData.is_verified,
-          is_featured: formData.is_featured,
-          is_premium_verified: formData.is_premium_verified,
-          is_just_arrived: formData.is_just_arrived,
-          inspection_report: formData.inspection_report
-        })
+        .update(updateData)
         .eq('id', carId)
 
       if (carError) throw carError

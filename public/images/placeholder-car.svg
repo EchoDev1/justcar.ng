@@ -1,0 +1,45 @@
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="800" height="600" fill="#1B2532"/>
+
+  <!-- Car Silhouette -->
+  <g transform="translate(150, 200)">
+    <!-- Car Body -->
+    <path d="M50,150 L150,100 L350,100 L450,150 L500,150 L500,250 L0,250 L0,150 Z"
+          fill="#2D3748" stroke="#4A5568" stroke-width="2"/>
+
+    <!-- Car Top -->
+    <path d="M150,100 L200,50 L300,50 L350,100 Z"
+          fill="#374151" stroke="#4A5568" stroke-width="2"/>
+
+    <!-- Left Wheel -->
+    <circle cx="120" cy="250" r="40" fill="#1F2937" stroke="#374151" stroke-width="4"/>
+    <circle cx="120" cy="250" r="25" fill="#4B5563"/>
+    <circle cx="120" cy="250" r="10" fill="#6B7280"/>
+
+    <!-- Right Wheel -->
+    <circle cx="380" cy="250" r="40" fill="#1F2937" stroke="#374151" stroke-width="4"/>
+    <circle cx="380" cy="250" r="25" fill="#4B5563"/>
+    <circle cx="380" cy="250" r="10" fill="#6B7280"/>
+
+    <!-- Windows -->
+    <path d="M170,80 L210,60 L240,60 L240,90 L170,90 Z"
+          fill="#0EA5E9" opacity="0.3"/>
+    <path d="M260,60 L290,60 L330,80 L330,90 L260,90 Z"
+          fill="#0EA5E9" opacity="0.3"/>
+
+    <!-- Headlight -->
+    <circle cx="480" cy="180" r="15" fill="#FFB700" opacity="0.6"/>
+
+    <!-- Door Handle -->
+    <rect x="280" y="150" width="30" height="8" rx="4" fill="#6B7280"/>
+  </g>
+
+  <!-- Text -->
+  <text x="400" y="450" font-family="Arial, sans-serif" font-size="24" fill="#9CA3AF" text-anchor="middle">
+    Car Image Not Available
+  </text>
+  <text x="400" y="480" font-family="Arial, sans-serif" font-size="16" fill="#6B7280" text-anchor="middle">
+    Placeholder Image
+  </text>
+</svg>

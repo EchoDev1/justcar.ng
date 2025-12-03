@@ -39,7 +39,20 @@ export default function AdminLogin() {
       })
 
       if (signInError) {
-        throw signInError
+        // Provide user-friendly error messages based on error type
+        if (signInError.message.includes('Invalid login credentials')) {
+          throw new Error('Invalid email or password. Please check your credentials and try again.')
+        } else if (signInError.message.includes('Email not confirmed')) {
+          throw new Error('Please verify your email address before logging in. Check your inbox for the verification link.')
+        } else if (signInError.message.includes('User not found')) {
+          throw new Error('No admin account found with this email address. Please contact support.')
+        } else if (signInError.message.includes('Too many requests')) {
+          throw new Error('Too many login attempts. Please wait a few minutes and try again.')
+        } else if (signInError.message.includes('Network')) {
+          throw new Error('Network error. Please check your internet connection and try again.')
+        } else {
+          throw signInError
+        }
       }
 
       if (data?.user) {
@@ -50,7 +63,7 @@ export default function AdminLogin() {
       }
     } catch (err) {
       console.error('Login error:', err)
-      setError(err.message || 'Failed to login. Please check your credentials.')
+      setError(err.message || 'An unexpected error occurred. Please try again or clear your session.')
     } finally {
       setLoading(false)
     }

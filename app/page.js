@@ -38,21 +38,30 @@ export default function HomePage() {
   const [loadingFeatured, setLoadingFeatured] = useState(true)
   const [loadingLatest, setLoadingLatest] = useState(true)
 
-  // Memoize particles generation for better performance
-  const particles = useMemo(() => {
-    const particleCount = 20 // Reduced from 30 for better performance
-    const newParticles = []
-    for (let i = 0; i < particleCount; i++) {
-      newParticles.push({
-        id: i,
-        left: `${Math.random() * 100}%`,
-        top: `${Math.random() * 100}%`,
-        delay: `${Math.random() * 20}s`,
-        duration: `${15 + Math.random() * 10}s`
-      })
-    }
-    return newParticles
-  }, [])
+  // Fixed particles to prevent hydration mismatch
+  // Using fixed values instead of Math.random() to ensure server and client match
+  const particles = useMemo(() => [
+    { id: 0, left: '15%', top: '20%', delay: '0s', duration: '20s' },
+    { id: 1, left: '85%', top: '40%', delay: '2s', duration: '18s' },
+    { id: 2, left: '45%', top: '10%', delay: '4s', duration: '22s' },
+    { id: 3, left: '70%', top: '70%', delay: '1s', duration: '19s' },
+    { id: 4, left: '25%', top: '85%', delay: '3s', duration: '21s' },
+    { id: 5, left: '90%', top: '25%', delay: '5s', duration: '17s' },
+    { id: 6, left: '10%', top: '60%', delay: '2.5s', duration: '23s' },
+    { id: 7, left: '60%', top: '15%', delay: '4.5s', duration: '18.5s' },
+    { id: 8, left: '35%', top: '90%', delay: '1.5s', duration: '20.5s' },
+    { id: 9, left: '80%', top: '50%', delay: '3.5s', duration: '19.5s' },
+    { id: 10, left: '50%', top: '30%', delay: '0.5s', duration: '21.5s' },
+    { id: 11, left: '20%', top: '75%', delay: '2.8s', duration: '22.5s' },
+    { id: 12, left: '75%', top: '5%', delay: '4.2s', duration: '17.8s' },
+    { id: 13, left: '40%', top: '65%', delay: '1.8s', duration: '19.8s' },
+    { id: 14, left: '95%', top: '35%', delay: '3.2s', duration: '20.8s' },
+    { id: 15, left: '5%', top: '45%', delay: '0.8s', duration: '18.2s' },
+    { id: 16, left: '65%', top: '80%', delay: '4.8s', duration: '21.2s' },
+    { id: 17, left: '30%', top: '55%', delay: '2.2s', duration: '23.2s' },
+    { id: 18, left: '55%', top: '95%', delay: '1.2s', duration: '16.5s' },
+    { id: 19, left: '88%', top: '12%', delay: '3.8s', duration: '24s' }
+  ], [])
 
   // Handle scroll for Back to Top button
   useEffect(() => {
@@ -221,10 +230,11 @@ export default function HomePage() {
         const response = await fetch('/api/cars/premium?limit=6')
         const data = await response.json()
 
-        if (data.cars && data.cars.length > 0) {
+        // Only show real premium cars when we have 6 or more
+        if (data.cars && data.cars.length >= 6) {
           setFeaturedCars(data.cars)
         } else {
-          // Fallback to sample data if no premium cars available
+          // Show sample/dummy data if less than 6 premium cars
           setFeaturedCars(sampleFeaturedCars)
         }
       } catch (error) {
@@ -240,23 +250,30 @@ export default function HomePage() {
   }, [])
 
   // Fetch Latest Arrivals
+  const [totalJustArrivedCount, setTotalJustArrivedCount] = useState(0)
   useEffect(() => {
     const fetchLatestCars = async () => {
       try {
         setLoadingLatest(true)
-        const response = await fetch('/api/cars/latest?limit=5')
+        // Fetch 6 cars to check if there are more than 5
+        const response = await fetch('/api/cars/latest?limit=6')
         const data = await response.json()
 
         if (data.cars && data.cars.length > 0) {
-          setLatestArrivals(data.cars)
+          // Store total count
+          setTotalJustArrivedCount(data.cars.length)
+          // Only show first 5 on homepage
+          setLatestArrivals(data.cars.slice(0, 5))
         } else {
           // Fallback to sample data if no latest cars available
           setLatestArrivals(sampleLatestArrivals)
+          setTotalJustArrivedCount(0)
         }
       } catch (error) {
         console.error('Error fetching latest cars:', error)
         // Fallback to sample data on error
         setLatestArrivals(sampleLatestArrivals)
+        setTotalJustArrivedCount(0)
       } finally {
         setLoadingLatest(false)
       }
@@ -842,7 +859,7 @@ export default function HomePage() {
 
           {/* View All Button with Arrow Animation */}
           <div className="text-center">
-            <Link href="/cars">
+            <Link href="/premium-verified">
               <button className="view-all-button">
                 View All Premium Cars
                 <ChevronRight size={20} />
@@ -1126,15 +1143,17 @@ export default function HomePage() {
             ))}
           </div>
 
-          {/* View All Recent Arrivals Button */}
-          <div className="text-center mt-16">
-            <Link href="/cars?sort=latest">
-              <button className="view-all-button">
-                View All New Arrivals
-                <ChevronRight size={20} />
-              </button>
-            </Link>
-          </div>
+          {/* View All Recent Arrivals Button - Only show if more than 5 cars */}
+          {totalJustArrivedCount > 5 && (
+            <div className="text-center mt-16">
+              <Link href="/just-arrived">
+                <button className="view-all-button">
+                  View All New Arrivals
+                  <ChevronRight size={20} />
+                </button>
+              </Link>
+            </div>
+          )}
         </div>
       </section>
 
