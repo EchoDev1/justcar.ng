@@ -5,52 +5,72 @@
 
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, Suspense, memo, useCallback, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import CarCard from '@/components/cars/CarCard'
 import SearchBar from '@/components/cars/SearchBar'
 import Loading from '@/components/ui/Loading'
 import { Star, Award, Shield } from 'lucide-react'
 
+// Memoized car card component for better performance
+const MemoizedCarCard = memo(CarCard)
+
 function PremiumVerifiedContent() {
   const [cars, setCars] = useState([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
 
-  useEffect(() => {
-    fetchPremiumCars()
-  }, [searchTerm])
+  // Memoize supabase client
+  const supabase = useMemo(() => createClient(), [])
 
-  const fetchPremiumCars = async () => {
+  const fetchPremiumCars = useCallback(async () => {
     setLoading(true)
-    const supabase = createClient()
 
     // Fetch premium cars from two sources:
     // 1. Admin-marked premium cars (is_premium_verified = true)
     // 2. Cars from premium/luxury dealers (badge_type IN ('premium', 'luxury'))
 
-    // Step 1: Get admin-marked premium cars
-    const { data: premiumMarkedCars } = await supabase
-      .from('cars')
-      .select(`
-        *,
-        dealers (name, badge_type, is_verified, phone, email),
-        car_images (image_url, is_primary)
-      `)
-      .eq('is_premium_verified', true)
+    // Fetch both queries in parallel for faster loading
+    const [premiumMarkedResult, premiumDealerResult] = await Promise.all([
+      // Step 1: Get admin-marked premium cars
+      supabase
+        .from('cars')
+        .select(`
+          id,
+          make,
+          model,
+          year,
+          price,
+          mileage,
+          location,
+          condition,
+          created_at,
+          dealers (name, badge_type, is_verified),
+          car_images (image_url, is_primary)
+        `)
+        .eq('is_premium_verified', true),
 
-    // Step 2: Get cars from premium/luxury dealers
-    const { data: premiumDealerCars } = await supabase
-      .from('cars')
-      .select(`
-        *,
-        dealers!inner (name, badge_type, is_verified, phone, email),
-        car_images (image_url, is_primary)
-      `)
-      .in('dealers.badge_type', ['premium', 'luxury'])
+      // Step 2: Get cars from premium/luxury dealers
+      supabase
+        .from('cars')
+        .select(`
+          id,
+          make,
+          model,
+          year,
+          price,
+          mileage,
+          location,
+          condition,
+          created_at,
+          dealers!inner (name, badge_type, is_verified),
+          car_images (image_url, is_primary)
+        `)
+        .in('dealers.badge_type', ['premium', 'luxury'])
+    ])
 
     // Combine and deduplicate by car ID
-    const allCars = [...(premiumMarkedCars || []), ...(premiumDealerCars || [])]
+    const allCars = [...(premiumMarkedResult.data || []), ...(premiumDealerResult.data || [])]
     let uniqueCars = Array.from(new Map(allCars.map(car => [car.id, car])).values())
 
     // Apply search filter if provided
@@ -68,11 +88,15 @@ function PremiumVerifiedContent() {
 
     setCars(uniqueCars)
     setLoading(false)
-  }
+  }, [searchTerm, supabase])
 
-  const handleSearch = (term) => {
+  useEffect(() => {
+    fetchPremiumCars()
+  }, [fetchPremiumCars])
+
+  const handleSearch = useCallback((term) => {
     setSearchTerm(term)
-  }
+  }, [])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
@@ -128,7 +152,7 @@ function PremiumVerifiedContent() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {cars.map((car) => (
-              <CarCard key={car.id} car={car} />
+              <MemoizedCarCard key={car.id} car={car} />
             ))}
           </div>
         )}

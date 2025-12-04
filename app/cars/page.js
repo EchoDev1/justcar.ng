@@ -5,7 +5,7 @@
 
 'use client'
 
-import { useState, useEffect, useCallback, Suspense } from 'react'
+import { useState, useEffect, useCallback, Suspense, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useSearchParams } from 'next/navigation'
 import CarGrid from '@/components/cars/CarGrid'
@@ -37,9 +37,11 @@ function CarsPageContent() {
   const [searchTerm, setSearchTerm] = useState('')
   const [sortBy, setSortBy] = useState('created_at_desc')
 
+  // Memoize supabase client for better performance
+  const supabase = useMemo(() => createClient(), [])
+
   const fetchCars = useCallback(async () => {
     setLoading(true)
-    const supabase = createClient()
 
     // Optimized query - only select necessary fields for faster loading
     let query = supabase

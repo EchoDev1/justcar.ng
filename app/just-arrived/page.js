@@ -5,30 +5,40 @@
 
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, Suspense, memo, useCallback, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import CarCard from '@/components/cars/CarCard'
 import SearchBar from '@/components/cars/SearchBar'
 import Loading from '@/components/ui/Loading'
 import { Clock, Zap } from 'lucide-react'
 
+// Memoized car card component for better performance
+const MemoizedCarCard = memo(CarCard)
+
 function JustArrivedContent() {
   const [cars, setCars] = useState([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
 
-  useEffect(() => {
-    fetchJustArrivedCars()
-  }, [searchTerm])
+  // Memoize supabase client
+  const supabase = useMemo(() => createClient(), [])
 
-  const fetchJustArrivedCars = async () => {
+  const fetchJustArrivedCars = useCallback(async () => {
     setLoading(true)
-    const supabase = createClient()
 
     let query = supabase
       .from('cars')
       .select(`
-        *,
+        id,
+        make,
+        model,
+        year,
+        price,
+        mileage,
+        location,
+        condition,
+        just_arrived_date,
+        created_at,
         dealers (name, badge_type, is_verified),
         car_images (image_url, is_primary)
       `)
@@ -53,11 +63,15 @@ function JustArrivedContent() {
 
     setCars(data || [])
     setLoading(false)
-  }
+  }, [searchTerm, supabase])
 
-  const handleSearch = (term) => {
+  useEffect(() => {
+    fetchJustArrivedCars()
+  }, [fetchJustArrivedCars])
+
+  const handleSearch = useCallback((term) => {
     setSearchTerm(term)
-  }
+  }, [])
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -111,7 +125,7 @@ function JustArrivedContent() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {cars.map((car) => (
-              <CarCard key={car.id} car={car} />
+              <MemoizedCarCard key={car.id} car={car} />
             ))}
           </div>
         )}

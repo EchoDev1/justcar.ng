@@ -185,8 +185,30 @@ export default function EditCarPage() {
           }])
       }
 
-      alert('Car updated successfully!')
-      router.push('/admin/cars')
+      // Success notification with details
+      const carType = []
+      if (formData.is_premium_verified) carType.push('Premium Verified')
+      if (formData.is_just_arrived) carType.push('Just Arrived')
+      if (formData.price >= 150000000) carType.push('Luxury')
+
+      const typeText = carType.length > 0 ? ` as ${carType.join(', ')}` : ''
+
+      alert(`✅ Car updated successfully${typeText}!\n\n` +
+            `${formData.year} ${formData.make} ${formData.model}\n` +
+            `Price: ₦${parseFloat(formData.price).toLocaleString()}\n\n` +
+            `${formData.is_premium_verified ? '⭐ Visible on Premium Verified page\n' : ''}` +
+            `${formData.is_just_arrived ? '🆕 Visible on Just Arrived page & Homepage\n' : ''}` +
+            `${formData.price >= 150000000 ? '💎 Visible on Luxury page\n' : ''}` +
+            `\nUpdates are live now!`)
+
+      // Redirect to the appropriate page based on car type
+      if (formData.is_just_arrived) {
+        router.push('/admin/just-arrived')
+      } else if (formData.is_premium_verified) {
+        router.push('/admin/premium-verified')
+      } else {
+        router.push('/admin/cars')
+      }
     } catch (error) {
       console.error('Error updating car:', error)
       alert('Error updating car: ' + error.message)

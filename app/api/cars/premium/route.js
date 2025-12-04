@@ -7,8 +7,9 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 
-// Enable static caching for 5 minutes
-export const revalidate = 300 // 5 minutes
+// No caching for immediate reflection
+export const revalidate = 0
+export const dynamic = 'force-dynamic'
 
 export async function GET(request) {
   try {
@@ -99,7 +100,9 @@ export async function GET(request) {
       { cars: cars || [] },
       {
         headers: {
-          'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600'
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
         }
       }
     )
@@ -110,7 +113,9 @@ export async function GET(request) {
       { cars: [] },
       {
         headers: {
-          'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120'
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
         }
       }
     )
