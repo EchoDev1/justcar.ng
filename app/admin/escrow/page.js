@@ -5,14 +5,16 @@
 
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Shield, TrendingUp, Clock, AlertCircle, DollarSign, Users, CheckCircle, XCircle, Search } from 'lucide-react'
 import { formatCurrency } from '@/lib/payments'
 import Loading from '@/components/ui/Loading'
 
 export default function AdminEscrowDashboard() {
-  const supabase = createClient()
+  // Memoize supabase client
+  const supabase = useMemo(() => createClient(), [])
+
   const [loading, setLoading] = useState(true)
   const [transactions, setTransactions] = useState([])
   const [filteredTransactions, setFilteredTransactions] = useState([])
@@ -35,15 +37,7 @@ export default function AdminEscrowDashboard() {
     admin_notes: ''
   })
 
-  useEffect(() => {
-    loadTransactions()
-  }, [])
-
-  useEffect(() => {
-    filterTransactions()
-  }, [transactions, filterStatus, searchTerm])
-
-  const loadTransactions = async () => {
+  const loadTransactions = useCallback(async () => {
     try {
       setLoading(true)
 
@@ -100,9 +94,13 @@ export default function AdminEscrowDashboard() {
 
       setLoading(false)
     }
-  }
+  }, [supabase])
 
-  const filterTransactions = () => {
+  useEffect(() => {
+    loadTransactions()
+  }, [loadTransactions])
+
+  const filterTransactions = useCallback(() => {
     let filtered = transactions
 
     // Filter by status
@@ -123,25 +121,29 @@ export default function AdminEscrowDashboard() {
     }
 
     setFilteredTransactions(filtered)
-  }
+  }, [transactions, filterStatus, searchTerm])
 
-  const calculateStats = () => {
+  useEffect(() => {
+    filterTransactions()
+  }, [filterTransactions])
+
+  const calculateStats = useCallback(() => {
     const totalVolume = transactions.reduce((sum, t) => sum + parseFloat(t.total_amount || 0), 0)
     const totalFees = transactions.filter(t => t.escrow_status === 'released').reduce((sum, t) => sum + parseFloat(t.escrow_fee || 0), 0)
     const activeCount = transactions.filter(t => ['funded', 'inspection_scheduled', 'inspection_completed', 'approved'].includes(t.escrow_status)).length
     const disputedCount = transactions.filter(t => t.escrow_status === 'disputed').length
 
     return { totalVolume, totalFees, activeCount, disputedCount }
-  }
+  }, [transactions])
 
-  const handleAction = (transaction, action) => {
+  const handleAction = useCallback((transaction, action) => {
     setSelectedTransaction(transaction)
     setActionType(action)
     setShowActionModal(true)
     setActionNote('')
-  }
+  }, [])
 
-  const submitAction = async () => {
+  const submitAction = useCallback(async () => {
     try {
       setSubmitting(true)
 
@@ -185,9 +187,9 @@ export default function AdminEscrowDashboard() {
       alert('Failed to perform action. Please try again.')
       setSubmitting(false)
     }
-  }
+  }, [supabase, selectedTransaction, actionType, actionNote, loadTransactions])
 
-  const handleEdit = (transaction) => {
+  const handleEdit = useCallback((transaction) => {
     setSelectedTransaction(transaction)
     setEditFormData({
       escrow_account_number: transaction.escrow_account_number || '',
@@ -200,9 +202,9 @@ export default function AdminEscrowDashboard() {
       admin_notes: transaction.admin_notes || ''
     })
     setShowEditModal(true)
-  }
+  }, [])
 
-  const submitEdit = async () => {
+  const submitEdit = useCallback(async () => {
     try {
       setSubmitting(true)
 
@@ -238,9 +240,9 @@ export default function AdminEscrowDashboard() {
       alert('Failed to update escrow details. Please try again.')
       setSubmitting(false)
     }
-  }
+  }, [supabase, selectedTransaction, editFormData, loadTransactions])
 
-  const getStatusInfo = (status) => {
+  const getStatusInfo = useCallback((status) => {
     const statusMap = {
       initiated: { color: 'blue', label: 'Initiated' },
       funded: { color: 'green', label: 'Funded' },
@@ -254,7 +256,7 @@ export default function AdminEscrowDashboard() {
       cancelled: { color: 'gray', label: 'Cancelled' }
     }
     return statusMap[status] || statusMap.initiated
-  }
+  }, [])
 
   if (loading) {
     return <Loading text="Loading escrow dashboard..." />

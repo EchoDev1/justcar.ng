@@ -1,11 +1,11 @@
 /**
- * Admin Dealer Permissions Page
+ * Admin Dealer Permissions Page - OPTIMIZED FOR LIGHTNING-FAST PERFORMANCE
  * Manage dealer access to premium features
  */
 
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Shield, Check, X, Settings } from 'lucide-react'
 import Button from '@/components/ui/Button'
@@ -24,63 +24,66 @@ export default function DealerPermissionsPage() {
     featured_limit: 0
   })
 
-  useEffect(() => {
-    fetchDealersWithPermissions()
-  }, [])
+  // Memoize supabase client
+  const supabase = useMemo(() => createClient(), [])
 
-  const fetchDealersWithPermissions = async () => {
+  const fetchDealersWithPermissions = useCallback(async () => {
     setLoading(true)
     try {
-      const supabase = createClient()
-
-      // Fetch dealers with their permissions
-      const { data: dealersData, error: dealersError } = await supabase
-        .from('dealers')
-        .select(`
-          *,
-          dealer_permissions (
+      // OPTIMIZATION: Fetch all data in parallel with a single optimized query
+      const [dealersResult, carsResult] = await Promise.all([
+        // Get dealers with permissions
+        supabase
+          .from('dealers')
+          .select(`
             id,
-            can_upload_premium_verified,
-            can_upload_just_arrived,
-            can_upload_featured,
-            premium_verified_limit,
-            just_arrived_limit,
-            featured_limit
-          )
-        `)
-        .order('name')
+            name,
+            email,
+            is_verified,
+            dealer_permissions (
+              id,
+              can_upload_premium_verified,
+              can_upload_just_arrived,
+              can_upload_featured,
+              premium_verified_limit,
+              just_arrived_limit,
+              featured_limit
+            )
+          `)
+          .order('name'),
 
-      if (dealersError) throw dealersError
+        // Get ALL car counts in ONE query - MASSIVE SPEED IMPROVEMENT
+        supabase
+          .from('cars')
+          .select('dealer_id, is_premium_verified, is_just_arrived, is_featured')
+      ])
 
-      // Get car counts for each dealer
-      const dealersWithCounts = await Promise.all(
-        (dealersData || []).map(async (dealer) => {
-          const { count: premiumCount } = await supabase
-            .from('cars')
-            .select('id', { count: 'exact', head: true })
-            .eq('dealer_id', dealer.id)
-            .eq('is_premium_verified', true)
+      if (dealersResult.error) throw dealersResult.error
 
-          const { count: justArrivedCount } = await supabase
-            .from('cars')
-            .select('id', { count: 'exact', head: true })
-            .eq('dealer_id', dealer.id)
-            .eq('is_just_arrived', true)
-
-          const { count: featuredCount } = await supabase
-            .from('cars')
-            .select('id', { count: 'exact', head: true })
-            .eq('dealer_id', dealer.id)
-            .eq('is_featured', true)
-
-          return {
-            ...dealer,
-            premium_count: premiumCount || 0,
-            just_arrived_count: justArrivedCount || 0,
-            featured_count: featuredCount || 0
+      // Process car counts efficiently in memory (much faster than DB queries)
+      const carCounts = {}
+      if (carsResult.data) {
+        carsResult.data.forEach(car => {
+          if (!carCounts[car.dealer_id]) {
+            carCounts[car.dealer_id] = {
+              premium_count: 0,
+              just_arrived_count: 0,
+              featured_count: 0
+            }
           }
+          if (car.is_premium_verified) carCounts[car.dealer_id].premium_count++
+          if (car.is_just_arrived) carCounts[car.dealer_id].just_arrived_count++
+          if (car.is_featured) carCounts[car.dealer_id].featured_count++
         })
-      )
+      }
+
+      // Merge counts with dealers
+      const dealersWithCounts = (dealersResult.data || []).map(dealer => ({
+        ...dealer,
+        premium_count: carCounts[dealer.id]?.premium_count || 0,
+        just_arrived_count: carCounts[dealer.id]?.just_arrived_count || 0,
+        featured_count: carCounts[dealer.id]?.featured_count || 0
+      }))
 
       setDealers(dealersWithCounts)
     } catch (error) {
@@ -89,9 +92,13 @@ export default function DealerPermissionsPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [supabase])
 
-  const handleEditPermissions = (dealer) => {
+  useEffect(() => {
+    fetchDealersWithPermissions()
+  }, [fetchDealersWithPermissions])
+
+  const handleEditPermissions = useCallback((dealer) => {
     setEditingDealer(dealer)
     const permissions = dealer.dealer_permissions?.[0] || {}
     setPermissionsForm({
@@ -102,14 +109,12 @@ export default function DealerPermissionsPage() {
       just_arrived_limit: permissions.just_arrived_limit || 0,
       featured_limit: permissions.featured_limit || 0
     })
-  }
+  }, [])
 
-  const handleSavePermissions = async () => {
+  const handleSavePermissions = useCallback(async () => {
     if (!editingDealer) return
 
     try {
-      const supabase = createClient()
-
       const existingPermission = editingDealer.dealer_permissions?.[0]
 
       if (existingPermission) {
@@ -139,14 +144,12 @@ export default function DealerPermissionsPage() {
       console.error('Error saving permissions:', error)
       alert('Error saving permissions: ' + error.message)
     }
-  }
+  }, [editingDealer, permissionsForm, supabase, fetchDealersWithPermissions])
 
-  const handleRevokeAllPermissions = async (dealer) => {
+  const handleRevokeAllPermissions = useCallback(async (dealer) => {
     if (!confirm(`Revoke all permissions for ${dealer.name}?`)) return
 
     try {
-      const supabase = createClient()
-
       const { error } = await supabase
         .from('dealer_permissions')
         .update({
@@ -167,7 +170,7 @@ export default function DealerPermissionsPage() {
       console.error('Error revoking permissions:', error)
       alert('Error revoking permissions: ' + error.message)
     }
-  }
+  }, [supabase, fetchDealersWithPermissions])
 
   if (loading) {
     return (
