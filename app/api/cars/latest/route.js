@@ -1,14 +1,14 @@
 /**
  * API Route: Fetch Latest Arrivals (Just Arrived Cars)
  * Returns cars marked as just arrived
- * Uses caching for better performance
+ * OPTIMIZED: With caching for better performance
  */
 
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 
-// No caching for immediate reflection
-export const revalidate = 0
+// Cache for 60 seconds - recent arrivals don't need real-time updates
+export const revalidate = 60
 export const dynamic = 'force-dynamic'
 
 export async function GET(request) {
@@ -44,9 +44,7 @@ export async function GET(request) {
         {
           status: 200,
           headers: {
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache',
-            'Expires': '0'
+            'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120'
           }
         }
       )
@@ -56,9 +54,7 @@ export async function GET(request) {
       { cars: cars || [] },
       {
         headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0'
+          'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120'
         }
       }
     )
@@ -69,9 +65,7 @@ export async function GET(request) {
       {
         status: 200,
         headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0'
+          'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120'
         }
       }
     )

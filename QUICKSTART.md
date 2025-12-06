@@ -37,15 +37,17 @@ In Supabase Dashboard → **Storage** → **New Bucket**:
 ### Step 5: Create Admin User
 
 **Authentication → Users → Add User:**
-- Email: `admin@justcars.ng`
-- Password: `Admin@123456`
+- Email: your-email@example.com (use your own email)
+- Password: Create a strong password (min 8 chars, uppercase, lowercase, number)
 - Auto Confirm: ✅
 
 **Copy the User ID, then run in SQL Editor:**
 ```sql
 INSERT INTO admins (id, email, role)
-VALUES ('paste-user-id-here', 'admin@justcars.ng', 'super_admin');
+VALUES ('paste-user-id-here', 'your-email@example.com', 'super_admin');
 ```
+
+🔒 **Security Note:** Never use default passwords or share your admin credentials!
 
 ### Step 6: Run the App
 ```bash
@@ -56,13 +58,14 @@ Visit:
 - Homepage: http://localhost:3000
 - Admin: http://localhost:3000/login
 
-## 🎯 Default Credentials
+## 🎯 Admin Access
 
-**Admin Login:**
-- Email: `admin@justcars.ng`
-- Password: `Admin@123456`
+**To access the admin panel:**
+1. Use the email and password you set when creating your admin user in Supabase
+2. Navigate to http://localhost:3000/admin/login
+3. Enter your credentials
 
-⚠️ **Change this immediately in production!**
+⚠️ **NEVER share admin credentials or commit them to version control!**
 
 ## 📦 What's Included
 

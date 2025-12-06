@@ -42,7 +42,15 @@
       "Bash(cmd /c taskkill /F /PID 12492)",
       "Bash(rm:*)",
       "Bash(npm update:*)",
-      "Bash(npm outdated:*)"
+      "Bash(npm outdated:*)",
+      "Bash(del /Q .nextdevlock 2)",
+      "Bash(curl:*)",
+      "Bash(time curl -s http://localhost:3000/admin/login)",
+      "Bash(app/api/dealer/me/route.js)",
+      "Bash(\"C:\\Users\\hp\\OneDrive\\Pictures\\Echo\\201401__\\OneDrive\\Echo\\leanring folder\\Justcars.ng\\app\\globals.css\")",
+      "Bash(exit 0)",
+      "Bash(del /Q \"C:\\Users\\hp\\OneDrive\\Pictures\\Echo\\201401__\\OneDrive\\Echo\\leanring folder\\Justcars.ng\\.next\\dev\\lock\" 2)",
+      "Bash(ping:*)"
     ],
     "deny": [],
     "ask": []

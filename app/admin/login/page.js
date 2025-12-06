@@ -5,18 +5,27 @@
 
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
-import { Shield, Mail, Lock, AlertCircle, LogIn } from 'lucide-react'
+import { Shield, Mail, Lock, AlertCircle, LogIn, Eye, EyeOff } from 'lucide-react'
 
 export default function AdminLogin() {
   const router = useRouter()
   const supabase = createClient()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+
+  // Clear form on mount for security
+  useEffect(() => {
+    setEmail('')
+    setPassword('')
+    setShowPassword(false)
+    setError('')
+  }, [])
 
   const handleLogin = async (e) => {
     e.preventDefault()
@@ -24,15 +33,7 @@ export default function AdminLogin() {
     setLoading(true)
 
     try {
-      // Clear any existing invalid sessions first
-      await supabase.auth.signOut()
-
-      // Clear local storage
-      if (typeof window !== 'undefined') {
-        localStorage.clear()
-        sessionStorage.clear()
-      }
-
+      // OPTIMIZED: Skip unnecessary sign out - just sign in directly
       const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password
@@ -64,6 +65,8 @@ export default function AdminLogin() {
     } catch (err) {
       console.error('Login error:', err)
       setError(err.message || 'An unexpected error occurred. Please try again or clear your session.')
+      // Clear password on error for security
+      setPassword('')
     } finally {
       setLoading(false)
     }
@@ -72,7 +75,13 @@ export default function AdminLogin() {
   const handleClearSession = async () => {
     try {
       setLoading(true)
-      await supabase.auth.signOut()
+
+      try {
+        await supabase.auth.signOut({ scope: 'local' })
+      } catch (signOutError) {
+        // Ignore sign out errors
+        console.log('No session to clear')
+      }
 
       if (typeof window !== 'undefined') {
         localStorage.clear()
@@ -80,9 +89,12 @@ export default function AdminLogin() {
       }
 
       setError('')
-      alert('Session cleared successfully. Please log in again.')
+      setEmail('')
+      setPassword('')
+      alert('Session and cache cleared successfully. Please log in again.')
     } catch (err) {
       console.error('Error clearing session:', err)
+      alert('Session cleared. Please log in again.')
     } finally {
       setLoading(false)
     }
@@ -128,10 +140,11 @@ export default function AdminLogin() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@justcars.ng"
+                  placeholder="Enter your email"
                   required
-                  className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-900 placeholder:text-gray-400 bg-white"
                   disabled={loading}
+                  autoComplete="off"
                 />
               </div>
             </div>
@@ -144,14 +157,23 @@ export default function AdminLogin() {
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
                   required
-                  className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="w-full pl-11 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-900 placeholder:text-gray-400 bg-white"
                   disabled={loading}
+                  autoComplete="off"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors focus:outline-none"
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
               </div>
             </div>
 

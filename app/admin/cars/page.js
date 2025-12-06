@@ -14,14 +14,28 @@ export const dynamic = 'force-dynamic'
 async function getCars() {
   const supabase = await createClient()
 
+  // OPTIMIZED: Limit to 100 most recent cars and select only needed fields
   const { data: cars, error } = await supabase
     .from('cars')
     .select(`
-      *,
+      id,
+      year,
+      make,
+      model,
+      price,
+      condition,
+      transmission,
+      location,
+      is_featured,
+      is_verified,
+      is_premium_verified,
+      is_just_arrived,
+      created_at,
       dealers (name),
       car_images (image_url, is_primary)
     `)
     .order('created_at', { ascending: false })
+    .limit(100)
 
   if (error) {
     console.error('Error fetching cars:', error)

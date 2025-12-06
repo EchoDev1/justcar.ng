@@ -3,28 +3,37 @@
  * View and manage all dealers
  */
 
-import { createClient } from '@/lib/supabase/server'
+import { createServiceRoleClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { Plus, Edit, Trash2 } from 'lucide-react'
 import Button from '@/components/ui/Button'
 import Badge from '@/components/ui/Badge'
+import DealerActions from '@/components/admin/DealerActions'
 
 export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 async function getDealers() {
-  const supabase = await createClient()
+  try {
+    // CRITICAL: Use service role client to bypass RLS for admin access
+    const supabase = createServiceRoleClient()
 
-  const { data: dealers, error } = await supabase
-    .from('dealers')
-    .select('*')
-    .order('created_at', { ascending: false })
+    const { data: dealers, error } = await supabase
+      .from('dealers')
+      .select('*')
+      .order('created_at', { ascending: false })
 
-  if (error) {
-    console.error('Error fetching dealers:', error)
+    if (error) {
+      console.error('Error fetching dealers:', error)
+      // Return empty array instead of crashing
+      return []
+    }
+
+    return dealers || []
+  } catch (error) {
+    console.error('Fatal error fetching dealers:', error)
     return []
   }
-
-  return dealers || []
 }
 
 export default async function DealersListPage() {
@@ -93,28 +102,20 @@ export default async function DealersListPage() {
                       {dealer.location}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {dealer.is_verified ? (
-                        <Badge variant="success" size="sm">Verified</Badge>
+                      {dealer.status === 'active' ? (
+                        <Badge variant="success" size="sm">Active</Badge>
+                      ) : dealer.status === 'verified' ? (
+                        <Badge variant="info" size="sm">Verified</Badge>
+                      ) : dealer.status === 'pending' ? (
+                        <Badge variant="warning" size="sm">Pending</Badge>
+                      ) : dealer.status === 'suspended' ? (
+                        <Badge variant="danger" size="sm">Suspended</Badge>
                       ) : (
-                        <Badge variant="default" size="sm">Unverified</Badge>
+                        <Badge variant="default" size="sm">{dealer.status || 'Unknown'}</Badge>
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <div className="flex items-center gap-3">
-                        <Link
-                          href={`/admin/dealers/${dealer.id}/edit`}
-                          className="text-blue-600 hover:text-blue-900"
-                          title="Edit"
-                        >
-                          <Edit size={18} />
-                        </Link>
-                        <button
-                          className="text-red-600 hover:text-red-900"
-                          title="Delete"
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </div>
+                      <DealerActions dealer={dealer} />
                     </td>
                   </tr>
                 ))

@@ -20,6 +20,10 @@ export const viewport = {
   themeColor: '#3B82F6',
 }
 
+// CRITICAL: Disable static optimization for auth-protected routes
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export default async function AdminLayout({ children }) {
   // Get the current pathname
   const headersList = await headers()
@@ -29,24 +33,30 @@ export default async function AdminLayout({ children }) {
   const isLoginPage = pathname === '/admin/login' || pathname.startsWith('/admin/login/')
 
   if (!isLoginPage) {
-    // Check admin authentication only for non-login pages
-    const supabase = await createClient()
-    const admin = await getAdminUser(supabase)
+    // OPTIMIZED: Quick auth check with proper error handling
+    try {
+      const supabase = await createClient()
+      const admin = await getAdminUser(supabase)
 
-    // If not an admin, redirect to admin login
-    if (!admin) {
+      // If not an admin, redirect to admin login
+      if (!admin) {
+        redirect('/admin/login')
+      }
+
+      // Render with sidebar for authenticated admin pages
+      return (
+        <div className="flex min-h-screen bg-gray-100">
+          <Sidebar />
+          <main className="flex-1 p-8">
+            {children}
+          </main>
+        </div>
+      )
+    } catch (error) {
+      // If any auth error, redirect to login
+      console.error('Admin auth error:', error)
       redirect('/admin/login')
     }
-
-    // Render with sidebar for authenticated admin pages
-    return (
-      <div className="flex min-h-screen bg-gray-100">
-        <Sidebar />
-        <main className="flex-1 p-8">
-          {children}
-        </main>
-      </div>
-    )
   }
 
   // For login page, render without sidebar

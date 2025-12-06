@@ -6911,3 +6911,968 @@ input[type="search"]:focus {
     justify-content: center;
   }
 }
+/* ==========================================================================
+   FUTURISTIC DEALER DASHBOARD STYLES
+   Mind-blowing glassmorphism, 3D effects, and advanced animations
+   ========================================================================== */
+
+/* ===== ANIMATED BACKGROUND ===== */
+.dealer-dash-bg {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, #0a0e27 0%, #1a1433 50%, #0f1729 100%);
+  z-index: 0;
+  overflow: hidden;
+}
+
+.dealer-dash-gradient-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.4;
+  animation: floatOrb 25s ease-in-out infinite;
+}
+
+.dealer-orb-1 {
+  width: 600px;
+  height: 600px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  top: -300px;
+  right: -300px;
+  animation-delay: 0s;
+}
+
+.dealer-orb-2 {
+  width: 500px;
+  height: 500px;
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  bottom: -250px;
+  left: -250px;
+  animation-delay: 8s;
+}
+
+.dealer-orb-3 {
+  width: 450px;
+  height: 450px;
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation-delay: 15s;
+}
+
+@keyframes floatOrb {
+  0%, 100% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+  }
+  25% {
+    transform: translate(150px, -150px) scale(1.15) rotate(90deg);
+  }
+  50% {
+    transform: translate(100px, 100px) scale(0.9) rotate(180deg);
+  }
+  75% {
+    transform: translate(-120px, 80px) scale(1.05) rotate(270deg);
+  }
+}
+
+/* Grid Overlay */
+.dealer-grid-overlay {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(102, 126, 234, 0.08) 1.5px, transparent 1.5px),
+    linear-gradient(90deg, rgba(102, 126, 234, 0.08) 1.5px, transparent 1.5px);
+  background-size: 60px 60px;
+  animation: gridSlide 30s linear infinite;
+  mask-image: radial-gradient(ellipse at center, rgba(0,0,0,0.3) 0%, transparent 70%);
+}
+
+@keyframes gridSlide {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(60px, 60px);
+  }
+}
+
+/* Floating Particles */
+.dealer-particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.dealer-particle {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+  animation: particleRise linear infinite;
+}
+
+@keyframes particleRise {
+  0% {
+    transform: translateY(100vh) scale(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.6;
+  }
+  90% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(-10vh) scale(1);
+    opacity: 0;
+  }
+}
+
+/* ===== MAIN CONTENT ===== */
+.dealer-dash-container {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  padding: 2rem;
+  animation: fadeInContent 1s ease;
+}
+
+@keyframes fadeInContent {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== HEADER SECTION ===== */
+.dealer-dash-header {
+  margin-bottom: 3rem;
+  animation: slideDown 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dealer-dash-title {
+  font-size: 3rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, #ffffff 0%, #667eea 50%, #f093fb 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.5rem;
+  animation: shimmerText 3s ease-in-out infinite;
+  background-size: 200% 200%;
+}
+
+@keyframes shimmerText {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.dealer-dash-subtitle {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1.125rem;
+  font-weight: 500;
+}
+
+/* Tier Badge */
+.dealer-tier-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.75rem;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 0.875rem;
+  letter-spacing: 0.05em;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  animation: badgePulse 3s ease-in-out infinite;
+}
+
+@keyframes badgePulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 15px 50px rgba(102, 126, 234, 0.5);
+  }
+}
+
+.dealer-tier-badge::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: badgeShine 4s linear infinite;
+}
+
+@keyframes badgeShine {
+  0% {
+    transform: translateX(-100%) translateY(-100%) rotate(45deg);
+  }
+  100% {
+    transform: translateX(100%) translateY(100%) rotate(45deg);
+  }
+}
+
+/* ===== GLASS CARD STYLES ===== */
+.dealer-glass-card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  padding: 2rem;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  overflow: hidden;
+  box-shadow:
+    0 8px 32px 0 rgba(0, 0, 0, 0.37),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.dealer-glass-card::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2), rgba(240, 147, 251, 0.2));
+  border-radius: 24px;
+  filter: blur(20px);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: -1;
+}
+
+.dealer-glass-card:hover::before {
+  opacity: 1;
+}
+
+.dealer-glass-card:hover {
+  transform: translateY(-8px);
+  box-shadow:
+    0 20px 60px 0 rgba(0, 0, 0, 0.5),
+    0 0 40px rgba(102, 126, 234, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  border-color: rgba(102, 126, 234, 0.3);
+}
+
+/* ===== STAT CARDS ===== */
+.dealer-stat-card {
+  position: relative;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+  backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 2rem;
+  overflow: hidden;
+  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  cursor: pointer;
+}
+
+.dealer-stat-card::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, var(--glow-color) 0%, transparent 70%);
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0);
+  transition: all 0.6s ease;
+  pointer-events: none;
+}
+
+.dealer-stat-card:hover::after {
+  opacity: 0.3;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.dealer-stat-card:hover {
+  transform: translateY(-10px) scale(1.02);
+  border-color: var(--border-color);
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.4),
+    0 0 40px var(--glow-color);
+}
+
+.dealer-stat-card.blue {
+  --glow-color: rgba(59, 130, 246, 0.5);
+  --border-color: rgba(59, 130, 246, 0.3);
+  border-left: 4px solid #3b82f6;
+}
+
+.dealer-stat-card.green {
+  --glow-color: rgba(16, 185, 129, 0.5);
+  --border-color: rgba(16, 185, 129, 0.3);
+  border-left: 4px solid #10b981;
+}
+
+.dealer-stat-card.purple {
+  --glow-color: rgba(139, 92, 246, 0.5);
+  --border-color: rgba(139, 92, 246, 0.3);
+  border-left: 4px solid #8b5cf6;
+}
+
+.dealer-stat-card.orange {
+  --glow-color: rgba(249, 115, 22, 0.5);
+  --border-color: rgba(249, 115, 22, 0.3);
+  border-left: 4px solid #f97316;
+}
+
+.dealer-stat-icon {
+  width: 64px;
+  height: 64px;
+  padding: 1rem;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  margin-bottom: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s ease;
+}
+
+.dealer-stat-icon::before {
+  content: '';
+  position: absolute;
+  inset: -50%;
+  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  animation: iconShine 3s linear infinite;
+}
+
+@keyframes iconShine {
+  0% {
+    transform: translateX(-100%) rotate(45deg);
+  }
+  100% {
+    transform: translateX(100%) rotate(45deg);
+  }
+}
+
+.dealer-stat-card:hover .dealer-stat-icon {
+  transform: scale(1.1) rotate(5deg);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.dealer-stat-value {
+  font-size: 3rem;
+  font-weight: 900;
+  color: white;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+  animation: countUp 1.5s ease-out;
+}
+
+@keyframes countUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dealer-stat-label {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.dealer-stat-sublabel {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+/* ===== PREMIUM STATS (Gradient Cards) ===== */
+.dealer-premium-stat {
+  position: relative;
+  padding: 2rem;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  cursor: pointer;
+}
+
+.dealer-premium-stat::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: inherit;
+  filter: brightness(1.2);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.dealer-premium-stat:hover::before {
+  opacity: 1;
+}
+
+.dealer-premium-stat:hover {
+  transform: translateY(-12px) rotateX(5deg);
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.4),
+    0 0 50px rgba(102, 126, 234, 0.4);
+}
+
+.dealer-premium-stat.gradient-blue-purple {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.dealer-premium-stat.gradient-green-teal {
+  background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);
+}
+
+.dealer-premium-stat.gradient-yellow-orange {
+  background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+}
+
+.dealer-premium-icon {
+  width: 48px;
+  height: 48px;
+  color: white;
+  filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.5));
+  margin-bottom: 1rem;
+  animation: floatIcon 3s ease-in-out infinite;
+}
+
+@keyframes floatIcon {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.dealer-premium-value {
+  font-size: 3.5rem;
+  font-weight: 900;
+  color: white;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  margin-bottom: 0.75rem;
+}
+
+.dealer-premium-label {
+  color: white;
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.dealer-premium-sublabel {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.875rem;
+}
+
+/* ===== QUICK ACTION BUTTON ===== */
+.dealer-action-btn {
+  position: relative;
+  width: 100%;
+  padding: 2rem;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 800;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow:
+    0 10px 40px rgba(102, 126, 234, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.dealer-action-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.dealer-action-btn:hover::before {
+  opacity: 1;
+}
+
+.dealer-action-btn::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.6s ease, height 0.6s ease;
+}
+
+.dealer-action-btn:active::after {
+  width: 500px;
+  height: 500px;
+}
+
+.dealer-action-btn:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow:
+    0 20px 60px rgba(102, 126, 234, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* ===== QUICK LINKS ===== */
+.dealer-quick-link {
+  position: relative;
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 2rem;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.dealer-quick-link::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+  transition: left 0.5s ease;
+}
+
+.dealer-quick-link:hover::before {
+  left: 100%;
+}
+
+.dealer-quick-link:hover {
+  transform: translateY(-8px);
+  border-color: var(--link-color);
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3), 0 0 30px var(--link-glow);
+}
+
+.dealer-quick-link.blue {
+  --link-color: rgba(59, 130, 246, 0.4);
+  --link-glow: rgba(59, 130, 246, 0.2);
+}
+
+.dealer-quick-link.purple {
+  --link-color: rgba(139, 92, 246, 0.4);
+  --link-glow: rgba(139, 92, 246, 0.2);
+}
+
+.dealer-quick-link.green {
+  --link-color: rgba(16, 185, 129, 0.4);
+  --link-glow: rgba(16, 185, 129, 0.2);
+}
+
+.dealer-quick-icon {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 1.5rem;
+  transition: all 0.4s ease;
+}
+
+.dealer-quick-link:hover .dealer-quick-icon {
+  transform: scale(1.2) rotate(10deg);
+}
+
+.dealer-quick-title {
+  color: white;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.dealer-quick-description {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.875rem;
+}
+
+.dealer-premium-badge {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: #1f2937;
+  font-size: 0.75rem;
+  font-weight: 800;
+  border-radius: 20px;
+  box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
+  animation: badgeBounce 2s ease-in-out infinite;
+}
+
+@keyframes badgeBounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* ===== RECENT CARS SECTION ===== */
+.dealer-car-card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.dealer-car-card:hover {
+  transform: translateY(-6px) rotateY(2deg);
+  border-color: rgba(102, 126, 234, 0.3);
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.4), 0 0 30px rgba(102, 126, 234, 0.2);
+}
+
+.dealer-car-image {
+  aspect-ratio: 16 / 9;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+  position: relative;
+  overflow: hidden;
+}
+
+.dealer-car-image::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.6) 100%);
+  z-index: 1;
+}
+
+.dealer-just-arrived-badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, #10b981, #14b8a6);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 20px;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+  z-index: 2;
+  animation: badgePing 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes badgePing {
+  75%, 100% {
+    transform: scale(1.2);
+    opacity: 0;
+  }
+}
+
+.dealer-car-content {
+  padding: 1.5rem;
+}
+
+.dealer-car-title {
+  color: white;
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+.dealer-car-price {
+  color: #667eea;
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  text-shadow: 0 0 20px rgba(102, 126, 234, 0.4);
+}
+
+.dealer-car-stats {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.875rem;
+}
+
+.dealer-car-edit-btn {
+  color: #667eea;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.dealer-car-edit-btn:hover {
+  color: #764ba2;
+  transform: translateX(4px);
+}
+
+/* ===== UPGRADE BANNER ===== */
+.dealer-upgrade-banner {
+  position: relative;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 24px;
+  padding: 3rem;
+  margin-bottom: 3rem;
+  overflow: hidden;
+  box-shadow:
+    0 20px 60px rgba(102, 126, 234, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.dealer-upgrade-banner::before {
+  content: '';
+  position: absolute;
+  inset: -50%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg 90deg,
+    rgba(255, 255, 255, 0.1) 90deg 180deg,
+    transparent 180deg 270deg,
+    rgba(255, 255, 255, 0.1) 270deg 360deg
+  );
+  animation: rotateConic 6s linear infinite;
+}
+
+@keyframes rotateConic {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.dealer-upgrade-content {
+  position: relative;
+  z-index: 1;
+}
+
+.dealer-upgrade-crown {
+  width: 64px;
+  height: 64px;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  color: white;
+  filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.5));
+  animation: crownFloat 3s ease-in-out infinite;
+}
+
+@keyframes crownFloat {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(5deg);
+  }
+}
+
+.dealer-upgrade-title {
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: white;
+  margin-bottom: 1rem;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.dealer-upgrade-description {
+  font-size: 1.125rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 1.5rem;
+}
+
+.dealer-upgrade-features {
+  margin-bottom: 2rem;
+}
+
+.dealer-upgrade-feature {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: white;
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.dealer-upgrade-btn {
+  padding: 1.25rem 2.5rem;
+  background: white;
+  color: #667eea;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.125rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.dealer-upgrade-btn:hover {
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+  background: #f0f0f0;
+}
+
+.dealer-upgrade-price {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.875rem;
+  margin-top: 1rem;
+  text-align: center;
+}
+
+/* ===== LOADING STATE ===== */
+.dealer-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 1.5rem;
+}
+
+.dealer-spinner {
+  width: 60px;
+  height: 60px;
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-top-color: #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.dealer-loading-text {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .dealer-dash-container {
+    padding: 1rem;
+  }
+
+  .dealer-dash-title {
+    font-size: 2rem;
+  }
+
+  .dealer-dash-subtitle {
+    font-size: 0.875rem;
+  }
+
+  .dealer-glass-card,
+  .dealer-stat-card,
+  .dealer-premium-stat {
+    padding: 1.5rem;
+  }
+
+  .dealer-stat-value,
+  .dealer-premium-value {
+    font-size: 2.5rem;
+  }
+
+  .dealer-action-btn {
+    padding: 1.5rem;
+    font-size: 1.125rem;
+  }
+
+  .dealer-upgrade-banner {
+    padding: 2rem 1.5rem;
+  }
+
+  .dealer-upgrade-title {
+    font-size: 1.75rem;
+  }
+
+  .dealer-upgrade-description {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .dealer-orb-1,
+  .dealer-orb-2,
+  .dealer-orb-3 {
+    width: 300px;
+    height: 300px;
+  }
+
+  .dealer-dash-title {
+    font-size: 1.75rem;
+  }
+
+  .dealer-stat-value,
+  .dealer-premium-value {
+    font-size: 2rem;
+  }
+}
+
+/* ===== SCROLL ANIMATIONS ===== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dealer-animate-on-scroll {
+  animation: fadeInUp 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  opacity: 0;
+}
+
+.dealer-delay-1 {
+  animation-delay: 0.1s;
+}
+
+.dealer-delay-2 {
+  animation-delay: 0.2s;
+}
+
+.dealer-delay-3 {
+  animation-delay: 0.3s;
+}
+
+.dealer-delay-4 {
+  animation-delay: 0.4s;
+}

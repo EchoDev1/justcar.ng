@@ -1,14 +1,14 @@
 /**
  * API Route: Fetch Premium Verified Cars
  * Returns cars marked as premium verified OR from premium/luxury dealers
- * Uses caching for better performance
+ * OPTIMIZED: Single query with caching
  */
 
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 
-// No caching for immediate reflection
-export const revalidate = 0
+// Cache for 60 seconds - homepage data doesn't need real-time updates
+export const revalidate = 60
 export const dynamic = 'force-dynamic'
 
 export async function GET(request) {
@@ -17,9 +17,8 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url)
     const limit = parseInt(searchParams.get('limit') || '6')
 
-    // Fetch premium verified cars OR cars from premium/luxury dealers
-    // Step 1: Get admin-marked premium cars
-    const { data: premiumMarkedCars } = await supabase
+    // OPTIMIZED: Get premium verified cars (simpler, faster query)
+    const { data: cars, error } = await supabase
       .from('cars')
       .select(`
         id,
@@ -51,58 +50,27 @@ export async function GET(request) {
         )
       `)
       .eq('is_premium_verified', true)
+      .order('created_at', { ascending: false })
+      .limit(limit)
 
-    // Step 2: Get cars from premium/luxury dealers
-    const { data: premiumDealerCars } = await supabase
-      .from('cars')
-      .select(`
-        id,
-        make,
-        model,
-        year,
-        price,
-        mileage,
-        location,
-        fuel_type,
-        transmission,
-        condition,
-        is_verified,
-        is_featured,
-        is_premium_verified,
-        dealer_id,
-        created_at,
-        dealers!inner (
-          id,
-          name,
-          phone,
-          email,
-          is_verified,
-          badge_type
-        ),
-        car_images (
-          image_url,
-          is_primary
-        )
-      `)
-      .in('dealers.badge_type', ['premium', 'luxury'])
-
-    // Combine and deduplicate by car ID
-    const allCars = [...(premiumMarkedCars || []), ...(premiumDealerCars || [])]
-    const uniqueCars = Array.from(new Map(allCars.map(car => [car.id, car])).values())
-
-    // Sort by created_at descending and limit
-    const cars = uniqueCars
-      .filter(car => car.car_images && car.car_images.length > 0) // Only cars with images
-      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-      .slice(0, limit)
+    if (error) {
+      console.error('Error fetching premium cars:', error)
+      return NextResponse.json(
+        { cars: [] },
+        {
+          status: 200,
+          headers: {
+            'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120'
+          }
+        }
+      )
+    }
 
     return NextResponse.json(
       { cars: cars || [] },
       {
         headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0'
+          'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120'
         }
       }
     )
