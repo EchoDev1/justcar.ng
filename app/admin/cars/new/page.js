@@ -20,12 +20,26 @@ export default function NewCarPage() {
   }, [])
 
   const fetchDealers = async () => {
-    const supabase = createClient()
-    const { data } = await supabase
-      .from('dealers')
-      .select('id, name')
-      .order('name')
-    setDealers(data || [])
+    try {
+      // Fetch ALL dealers including verified ones for admin to assign cars
+      const response = await fetch('/api/admin/dealers-list')
+      if (response.ok) {
+        const { dealers: dealersList } = await response.json()
+        setDealers(dealersList || [])
+      } else {
+        // Fallback to direct query
+        const supabase = createClient()
+        const { data } = await supabase
+          .from('dealers')
+          .select('id, name, business_name, status')
+          .in('status', ['active', 'verified', 'pending'])
+          .order('name')
+        setDealers(data || [])
+      }
+    } catch (error) {
+      console.error('Error fetching dealers:', error)
+      setDealers([])
+    }
   }
 
   const handleSubmit = async ({ formData, images, videoFile }) => {
