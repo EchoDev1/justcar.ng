@@ -86,8 +86,8 @@ export default function DealerLayout({ children }) {
   return (
     <div className="flex min-h-screen bg-gray-50">
       <DealerSidebar dealer={dealer} />
-      <main className="flex-1 overflow-x-hidden">
-        <div className="p-8">
+      <main className="flex-1 overflow-x-hidden w-full lg:w-auto">
+        <div className="p-4 sm:p-6 lg:p-8 pt-20 lg:pt-8">
           {children}
         </div>
       </main>

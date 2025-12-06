@@ -10,7 +10,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import {
   Car, Home, Plus, List, Star, Clock, LogOut,
   CreditCard, TrendingUp, User, MessageSquare,
-  BarChart3, Crown, Shield, Settings
+  BarChart3, Crown, Shield, Settings, Menu, X
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
@@ -19,6 +19,7 @@ import { useState, useEffect } from 'react'
 export default function DealerSidebar({ dealer }) {
   const pathname = usePathname()
   const router = useRouter()
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   // Get subscription tier badge
   const getTierBadge = () => {
@@ -101,8 +102,30 @@ export default function DealerSidebar({ dealer }) {
   }
 
   return (
-    <aside className="w-72 bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 text-white min-h-screen flex flex-col shadow-2xl">
-      {/* Logo & Dealer Info */}
+    <>
+      {/* Mobile Menu Button */}
+      <button
+        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        className="fixed top-4 left-4 z-50 lg:hidden bg-gradient-to-r from-blue-600 to-purple-600 p-3 rounded-lg shadow-lg text-white hover:shadow-xl transition-all"
+        aria-label="Toggle menu"
+      >
+        {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+      </button>
+
+      {/* Mobile Overlay */}
+      {isMobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside className={cn(
+        "w-72 bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 text-white min-h-screen flex flex-col shadow-2xl fixed lg:relative z-40 transition-transform duration-300",
+        isMobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+      )}>
+        {/* Logo & Dealer Info */}
       <div className="p-6 border-b border-gray-700">
         <Link href="/dealer" className="flex items-center space-x-3 mb-4">
           <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-2 rounded-lg">
@@ -219,5 +242,6 @@ export default function DealerSidebar({ dealer }) {
         </p>
       </div>
     </aside>
+    </>
   )
 }

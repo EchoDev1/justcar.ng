@@ -4,7 +4,7 @@
  * OPTIMIZED: With caching for better performance
  */
 
-import { createClient } from '@/lib/supabase/server'
+import { createServiceRoleClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 
 // Cache for 60 seconds - recent arrivals don't need real-time updates
@@ -13,7 +13,8 @@ export const dynamic = 'force-dynamic'
 
 export async function GET(request) {
   try {
-    const supabase = await createClient()
+    // CRITICAL FIX: Use service role client to bypass RLS and avoid infinite recursion
+    const supabase = createServiceRoleClient()
     const { searchParams } = new URL(request.url)
     const limit = parseInt(searchParams.get('limit') || '5')
 
