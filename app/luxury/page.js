@@ -88,20 +88,24 @@ export default function LuxuryPortalPage() {
     setGoldParticles(newParticles)
   }, [])
 
-  // Fetch luxury cars (≥150M)
+  // Fetch luxury cars (≥150M ONLY - STRICT FILTERING)
   useEffect(() => {
     async function fetchLuxuryCars() {
       try {
         const response = await fetch('/api/cars/luxury?limit=12')
         const data = await response.json()
 
-        // Mark all cars as luxury for display purposes
-        const carsWithLuxuryFlag = (data.cars || []).map(car => ({
-          ...car,
-          is_luxury_page: true // Flag to indicate this is displayed on luxury page
-        }))
+        // STRICT FILTER: Only allow cars with price >= 150,000,000
+        // This is a safety check to ensure no cars below 150M appear on luxury page
+        const luxuryOnlyCars = (data.cars || [])
+          .filter(car => car.price >= 150000000)
+          .map(car => ({
+            ...car,
+            is_luxury_page: true // Flag to indicate this is displayed on luxury page
+          }))
 
-        setLuxuryCars(carsWithLuxuryFlag)
+        console.log(`[LUXURY PAGE] Loaded ${luxuryOnlyCars.length} cars >= ₦150M`)
+        setLuxuryCars(luxuryOnlyCars)
       } catch (error) {
         console.error('Error fetching luxury cars:', error)
         setLuxuryCars([])
