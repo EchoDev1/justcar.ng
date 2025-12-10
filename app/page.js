@@ -1068,7 +1068,7 @@ export default function HomePage() {
       </section>
 
       {/* Latest Arrivals - Timeline */}
-      <section className="py-24 relative overflow-hidden bg-primary-light">
+      <section className="py-24 relative overflow-hidden" style={{ backgroundColor: 'var(--primary-light)' }}>
         <div className="hero-gradient-mesh absolute inset-0 opacity-15" />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -1276,7 +1276,7 @@ export default function HomePage() {
       </section>
 
       {/* Testimonials Section */}
-      <section className="testimonials-section py-24 relative overflow-hidden bg-primary-light">
+      <section className="testimonials-section py-24 relative overflow-hidden" style={{ backgroundColor: 'var(--primary-light)' }}>
         <div className="hero-gradient-mesh absolute inset-0 opacity-15" />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
