@@ -61,10 +61,9 @@ export async function GET(request) {
       .order('created_at', { ascending: false })
       .limit(limit)
 
-    if (error)
-
     console.log('✅ [PREMIUM CARS] Query successful - cars found:', cars?.length || 0)
- {
+
+    if (error) {
       console.error('Error fetching premium cars:', error)
       return NextResponse.json(
         { cars: [] },
