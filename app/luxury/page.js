@@ -88,24 +88,26 @@ export default function LuxuryPortalPage() {
     setGoldParticles(newParticles)
   }, [])
 
-  // Fetch luxury cars
+  // Fetch luxury cars (≥150M)
   useEffect(() => {
     async function fetchLuxuryCars() {
-      const supabase = createClient()
+      try {
+        const response = await fetch('/api/cars/luxury?limit=12')
+        const data = await response.json()
 
-      const { data: cars } = await supabase
-        .from('cars')
-        .select(`
-          *,
-          dealers (name),
-          car_images (image_url, is_primary)
-        `)
-        .gte('price', 150000000)
-        .order('price', { ascending: false })
-        .limit(12)
+        // Mark all cars as luxury for display purposes
+        const carsWithLuxuryFlag = (data.cars || []).map(car => ({
+          ...car,
+          is_luxury_page: true // Flag to indicate this is displayed on luxury page
+        }))
 
-      setLuxuryCars(cars || [])
-      setLoading(false)
+        setLuxuryCars(carsWithLuxuryFlag)
+      } catch (error) {
+        console.error('Error fetching luxury cars:', error)
+        setLuxuryCars([])
+      } finally {
+        setLoading(false)
+      }
     }
 
     fetchLuxuryCars()

@@ -182,26 +182,26 @@ function CarCard({ car, is3D = true }) {
                 {car.condition}
               </div>
 
-              {/* Premium Verified Badge - Bottom Right */}
-              {car.is_premium_verified && (
+              {/* Luxury Badge - For cars ≥150M (displayed on luxury page) */}
+              {(car.is_luxury_page || car.price >= 150000000) && (
+                <div className="absolute bottom-3 right-3 bg-gradient-to-r from-yellow-500 via-orange-500 to-yellow-600 text-gray-900 px-3 py-1.5 rounded-lg text-xs font-bold shadow-lg border border-yellow-400 z-20 flex items-center gap-1.5 animate-pulse-slow">
+                  <Crown size={14} fill="currentColor" />
+                  <span>LUXURY</span>
+                </div>
+              )}
+
+              {/* Premium Verified Badge - Only show if NOT luxury (< 150M) */}
+              {!car.is_luxury_page && car.price < 150000000 && car.is_premium_verified && (
                 <div className="absolute bottom-3 right-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-gray-900 px-3 py-1.5 rounded-lg text-xs font-bold shadow-lg border border-yellow-300 z-20 flex items-center gap-1.5">
                   <Star size={14} fill="currentColor" />
                   <span>PREMIUM</span>
                 </div>
               )}
 
-              {/* Luxury Dealer Crown Badge - Bottom Right (shows when dealer is luxury and no premium badge) */}
-              {!car.is_premium_verified && car.dealers?.badge_type === 'luxury' && (
-                <div className="absolute bottom-3 right-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-gray-900 px-3 py-1.5 rounded-lg text-xs font-bold shadow-lg border border-yellow-400 z-20 flex items-center gap-1.5">
-                  <Crown size={14} />
-                  <span>LUXURY</span>
-                </div>
-              )}
-
-              {/* Heart Icon (Save) - Repositioned to avoid conflict */}
+              {/* Heart Icon (Save) - Repositioned to avoid conflict with badges */}
               <button
                 onClick={handleSave}
-                className={`absolute ${car.is_premium_verified || car.dealers?.badge_type === 'luxury' ? 'bottom-3 right-20' : 'bottom-3 right-3'} bg-white/90 backdrop-blur-sm p-2.5 rounded-full shadow-lg hover:bg-white transition-all duration-300 hover:scale-110 active:scale-95`}
+                className={`absolute ${(car.is_luxury_page || car.price >= 150000000 || car.is_premium_verified) ? 'bottom-3 right-20' : 'bottom-3 right-3'} bg-white/90 backdrop-blur-sm p-2.5 rounded-full shadow-lg hover:bg-white transition-all duration-300 hover:scale-110 active:scale-95`}
               >
                 <Heart
                   size={20}
