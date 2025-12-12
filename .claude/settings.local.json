@@ -53,7 +53,9 @@
       "Bash(ping:*)",
       "Bash(git diff:*)",
       "Bash(temp_cars.json)",
-      "Bash(git log:*)"
+      "Bash(git log:*)",
+      "Bash(vercel --version:*)",
+      "Bash(vercel:*)"
     ],
     "deny": [],
     "ask": []

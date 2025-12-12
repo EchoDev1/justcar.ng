@@ -1,0 +1,19 @@
+═══════════════════════════════════════════════════════
+  RUN THIS COMMAND NOW TO UPDATE PRODUCTION DOMAINS
+═══════════════════════════════════════════════════════
+
+Open Git Bash or Terminal in this project folder and run:
+
+    vercel --prod
+
+Then press ENTER and wait 2-3 minutes.
+
+═══════════════════════════════════════════════════════
+
+That's ALL you need to do!
+
+This will update:
+  ✅ justcars-ng.vercel.app
+  ✅ justcars-ng-ebuka-ekes-projects.vercel.app
+
+═══════════════════════════════════════════════════════

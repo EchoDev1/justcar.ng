@@ -68,3 +68,5 @@ STEP_BY_STEP_SQL.md
 
 # Claude Code local settings
 .claude/settings.local.json
+
+.vercel

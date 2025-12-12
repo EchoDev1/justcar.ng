@@ -1,0 +1,10 @@
+You need to manually run this command to deploy to production:
+
+vercel --prod
+
+This will:
+1. Log you in (if needed)
+2. Build and deploy to production
+3. Update all production domains automatically
+
+Run it NOW in your terminal!

@@ -1,0 +1,58 @@
+========================================
+DEPLOY TO PRODUCTION - COPY & PASTE
+========================================
+
+Open Git Bash or Terminal in your project folder, then copy and paste these commands:
+
+STEP 1: Login to Vercel
+------------------------
+vercel login
+
+
+STEP 2: Deploy to Production
+-----------------------------
+vercel --prod
+
+
+That's it! Wait 2-3 minutes and all your domains will be updated.
+
+========================================
+EXPECTED OUTPUT
+========================================
+
+You should see:
+
+  Vercel CLI 49.1.2
+  🔍  Inspect: https://vercel.com/...
+  ✅  Production: https://justcars-ng.vercel.app [2m 34s]
+
+When you see "✅ Production", you're done!
+
+========================================
+VERIFY IT WORKED
+========================================
+
+Visit: https://justcars-ng.vercel.app
+
+Should load instantly with all updates!
+
+========================================
+NEXT STEPS (CRITICAL!)
+========================================
+
+After deployment, you MUST:
+
+1. Create storage buckets in Supabase:
+   - Go to: https://supabase.com/dashboard
+   - Storage → New Bucket → "car-images" (public)
+   - Storage → New Bucket → "car-videos" (public)
+
+2. Apply database indexes:
+   - SQL Editor → Run: supabase/migrations/add_performance_indexes.sql
+
+3. Set storage policies:
+   - See: SIMPLE_BUCKET_SETUP.md
+
+Without storage buckets, car creation will still fail!
+
+========================================
