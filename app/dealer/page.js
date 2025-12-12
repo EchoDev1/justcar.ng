@@ -238,7 +238,7 @@ export default function DealerDashboard() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="dealer-stat-card blue dealer-animate-on-scroll dealer-delay-1">
+        <Link href="/dealer/cars" className="dealer-stat-card blue dealer-animate-on-scroll dealer-delay-1 cursor-pointer hover:scale-105 transition-transform">
           <div className="flex items-center justify-between mb-4">
             <div className="dealer-stat-icon">
               <Car className="text-blue-500" size={32} />
@@ -247,9 +247,9 @@ export default function DealerDashboard() {
           </div>
           <h3 className="dealer-stat-label">Total Listings</h3>
           <p className="dealer-stat-sublabel">Active inventory</p>
-        </div>
+        </Link>
 
-        <div className="dealer-stat-card green dealer-animate-on-scroll dealer-delay-2">
+        <Link href="/dealer/analytics" className="dealer-stat-card green dealer-animate-on-scroll dealer-delay-2 cursor-pointer hover:scale-105 transition-transform">
           <div className="flex items-center justify-between mb-4">
             <div className="dealer-stat-icon">
               <Eye className="text-green-500" size={32} />
@@ -258,9 +258,9 @@ export default function DealerDashboard() {
           </div>
           <h3 className="dealer-stat-label">Total Views</h3>
           <p className="dealer-stat-sublabel">All-time visibility</p>
-        </div>
+        </Link>
 
-        <div className="dealer-stat-card purple dealer-animate-on-scroll dealer-delay-3">
+        <Link href="/dealer/cars?justArrived=true" className="dealer-stat-card purple dealer-animate-on-scroll dealer-delay-3 cursor-pointer hover:scale-105 transition-transform">
           <div className="flex items-center justify-between mb-4">
             <div className="dealer-stat-icon">
               <TrendingUp className="text-purple-500" size={32} />
@@ -269,9 +269,9 @@ export default function DealerDashboard() {
           </div>
           <h3 className="dealer-stat-label">Just Arrived</h3>
           <p className="dealer-stat-sublabel">Fresh inventory</p>
-        </div>
+        </Link>
 
-        <div className="dealer-stat-card orange dealer-animate-on-scroll dealer-delay-4">
+        <Link href="/dealer/cars?recent=true" className="dealer-stat-card orange dealer-animate-on-scroll dealer-delay-4 cursor-pointer hover:scale-105 transition-transform">
           <div className="flex items-center justify-between mb-4">
             <div className="dealer-stat-icon">
               <Calendar className="text-orange-500" size={32} />
@@ -280,7 +280,7 @@ export default function DealerDashboard() {
           </div>
           <h3 className="dealer-stat-label">Last 7 Days</h3>
           <p className="dealer-stat-sublabel">New additions</p>
-        </div>
+        </Link>
       </div>
 
       {/* Premium Stats (only for premium/luxury) */}
