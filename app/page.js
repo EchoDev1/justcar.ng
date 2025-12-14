@@ -42,12 +42,15 @@ export default function HomePage() {
   const [featuredCars, setFeaturedCars] = useState([])
   const [loadingFeatured, setLoadingFeatured] = useState(true)
 
-  // Handle search submission
+  // Handle search submission - searches for exact brand matches
   const handleSearch = (e) => {
     e?.preventDefault()
     if (searchTerm.trim() || activeFilter) {
       const params = new URLSearchParams()
-      if (searchTerm.trim()) params.set('search', searchTerm.trim())
+      // For homepage search, treat search term as brand/make search for better UX
+      if (searchTerm.trim()) {
+        params.set('make', searchTerm.trim())
+      }
       if (activeFilter) params.set('filter', activeFilter)
       router.push(`/cars?${params.toString()}`)
     } else {
@@ -586,7 +589,7 @@ export default function HomePage() {
                   <Search className="text-accent-blue search-icon-pulse flex-shrink-0" size={28} />
                   <input
                     type="text"
-                    placeholder="Search by make, model, or location..."
+                    placeholder="Search by car brand (e.g., Toyota, Mercedes)..."
                     className="search-input-hero"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -975,9 +978,20 @@ export default function HomePage() {
             <h2 className="text-4xl md:text-6xl font-bold mb-4 gradient-text-hero">
               Browse by Brand
             </h2>
-            <p className="text-muted text-lg max-w-2xl mx-auto">
+            <p className="text-muted text-lg max-w-2xl mx-auto mb-8">
               Explore premium vehicles from the world's most trusted automotive manufacturers
             </p>
+
+            {/* Alphabet Filter */}
+            <div className="flex flex-wrap justify-center gap-2 mb-8">
+              {'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map((letter) => (
+                <Link key={letter} href={`/cars?brandLetter=${letter}`}>
+                  <button className="w-10 h-10 rounded-lg bg-gray-800/50 border border-accent-blue/30 text-white font-semibold hover:bg-accent-blue hover:border-accent-blue transition-all duration-300 hover:scale-110">
+                    {letter}
+                  </button>
+                </Link>
+              ))}
+            </div>
           </div>
 
           {/* Brand Logo Grid */}

@@ -316,7 +316,7 @@ export default function DealerDashboard() {
       )}
 
       {/* Quick Links Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <Link href="/dealer/cars">
           <div className="dealer-quick-link blue dealer-animate-on-scroll dealer-delay-1">
             <Car className="dealer-quick-icon text-blue-500" />
@@ -325,8 +325,16 @@ export default function DealerDashboard() {
           </div>
         </Link>
 
+        <Link href="/dealer/bank-details">
+          <div className="dealer-quick-link orange dealer-animate-on-scroll dealer-delay-2">
+            <DollarSign className="dealer-quick-icon text-orange-500" />
+            <h3 className="dealer-quick-title">Bank Details</h3>
+            <p className="dealer-quick-description">Manage payment information</p>
+          </div>
+        </Link>
+
         <Link href={isPremiumOrLuxury ? "/dealer/analytics" : "/dealer/subscription"}>
-          <div className="dealer-quick-link purple dealer-animate-on-scroll dealer-delay-2">
+          <div className="dealer-quick-link purple dealer-animate-on-scroll dealer-delay-3">
             {!isPremiumOrLuxury && (
               <div className="dealer-premium-badge">
                 PREMIUM
@@ -341,7 +349,7 @@ export default function DealerDashboard() {
         </Link>
 
         <Link href={isPremiumOrLuxury ? "/dealer/messages" : "/dealer/subscription"}>
-          <div className="dealer-quick-link green dealer-animate-on-scroll dealer-delay-3">
+          <div className="dealer-quick-link green dealer-animate-on-scroll dealer-delay-4">
             {!isPremiumOrLuxury && (
               <div className="dealer-premium-badge">
                 PREMIUM

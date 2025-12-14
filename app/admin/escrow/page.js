@@ -77,7 +77,7 @@ export default function AdminEscrowDashboard() {
       setTransactions(transactionsData || [])
       setLoading(false)
     } catch (error) {
-      console.error('Error loading transactions:', error)
+      console.error('Error loading transactions:', error?.message || 'Unknown error', error)
 
       // Check if it's a database error
       if (error?.code === 'PGRST116' || error?.message?.includes('relation') || error?.message?.includes('does not exist')) {

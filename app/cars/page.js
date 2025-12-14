@@ -73,17 +73,17 @@ function CarsPageContent() {
         )
       `, { count: 'exact' })
 
-    // Apply filters
-    if (filters.make) query = query.eq('make', filters.make)
+    // Apply filters - use ilike for case-insensitive exact matching on text fields
+    if (filters.make) query = query.ilike('make', filters.make)
     if (filters.minPrice) query = query.gte('price', parseFloat(filters.minPrice))
     if (filters.maxPrice) query = query.lte('price', parseFloat(filters.maxPrice))
     if (filters.minYear) query = query.gte('year', parseInt(filters.minYear))
     if (filters.maxYear) query = query.lte('year', parseInt(filters.maxYear))
-    if (filters.location) query = query.eq('location', filters.location)
-    if (filters.condition) query = query.eq('condition', filters.condition)
-    if (filters.bodyType) query = query.eq('body_type', filters.bodyType)
-    if (filters.fuelType) query = query.eq('fuel_type', filters.fuelType)
-    if (filters.transmission) query = query.eq('transmission', filters.transmission)
+    if (filters.location) query = query.ilike('location', filters.location)
+    if (filters.condition) query = query.ilike('condition', filters.condition)
+    if (filters.bodyType) query = query.ilike('body_type', filters.bodyType)
+    if (filters.fuelType) query = query.ilike('fuel_type', filters.fuelType)
+    if (filters.transmission) query = query.ilike('transmission', filters.transmission)
     if (filters.verifiedOnly) query = query.eq('is_verified', true)
 
     // Apply search
@@ -109,9 +109,8 @@ function CarsPageContent() {
     const { data, error, count } = await query
 
     if (error) {
-      console.error('Error fetching cars:', error)
-      setCars([])
-      setTotalCount(0)
+      console.error('Error fetching cars:', error?.message || error)
+      // Don't clear cars on error - keep showing previous data
       setLoading(false)
       return
     }
@@ -128,6 +127,7 @@ function CarsPageContent() {
     const bodyType = searchParams.get('body_type')
     const make = searchParams.get('make')
     const price = searchParams.get('price')
+    const brandLetter = searchParams.get('brandLetter')
 
     // Apply search term
     if (search) {
@@ -142,6 +142,11 @@ function CarsPageContent() {
     // Handle direct make parameter (from brand logos)
     if (make) {
       setFilters(prev => ({ ...prev, make: make }))
+    }
+
+    // Handle brandLetter parameter (from alphabet filter) - set as search term to filter by first letter
+    if (brandLetter) {
+      setSearchTerm(brandLetter)
     }
 
     // Handle direct price parameter (from category cards)
