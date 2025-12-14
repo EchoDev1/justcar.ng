@@ -125,13 +125,40 @@ function CarsPageContent() {
   useEffect(() => {
     const search = searchParams.get('search')
     const filter = searchParams.get('filter')
+    const bodyType = searchParams.get('body_type')
+    const make = searchParams.get('make')
+    const price = searchParams.get('price')
 
+    // Apply search term
     if (search) {
       setSearchTerm(search)
     }
 
+    // Handle direct body_type parameter (from category cards)
+    if (bodyType) {
+      setFilters(prev => ({ ...prev, bodyType: bodyType }))
+    }
+
+    // Handle direct make parameter (from brand logos)
+    if (make) {
+      setFilters(prev => ({ ...prev, make: make }))
+    }
+
+    // Handle direct price parameter (from category cards)
+    if (price) {
+      if (price.includes('+')) {
+        // Format: 50000000+ (luxury)
+        const minPrice = price.replace('+', '')
+        setFilters(prev => ({ ...prev, minPrice: minPrice, maxPrice: '' }))
+      } else if (price.includes('-')) {
+        // Format: 0-10000000 (budget)
+        const [min, max] = price.split('-')
+        setFilters(prev => ({ ...prev, minPrice: min !== '0' ? min : '', maxPrice: max }))
+      }
+    }
+
+    // Handle filter parameter (from search bar pills)
     if (filter) {
-      // Handle different filter types
       const filterLower = filter.toLowerCase()
 
       // Check if it's a make (brand)
