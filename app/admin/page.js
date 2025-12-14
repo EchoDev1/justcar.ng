@@ -4,8 +4,10 @@
  */
 
 import { createClient } from '@/lib/supabase/server'
-import { Car, Users, CheckCircle, Clock, Star, TrendingUp } from 'lucide-react'
+import { Car, Users, CheckCircle, Clock, Star, TrendingUp, Edit, Eye, Ban, Trash2 } from 'lucide-react'
 import Link from 'next/link'
+import BlockCarButton from '@/components/admin/BlockCarButton'
+import DeleteCarButton from '@/components/admin/DeleteCarButton'
 
 // Cache for 60 seconds for instant loads
 export const revalidate = 60
@@ -73,7 +75,7 @@ async function getRecentCars() {
     // Only fetch essential fields for faster query
     const { data: cars } = await supabase
       .from('cars')
-      .select('id,year,make,model,location,price,is_verified,is_featured,dealers(name)')
+      .select('id,year,make,model,location,price,is_verified,is_featured,is_blocked,dealer_id,dealers(name)')
       .order('created_at', { ascending: false })
       .limit(5)
 
@@ -202,21 +204,25 @@ export default async function AdminDashboard() {
                 </tr>
               ) : (
                 recentCars.map((car) => (
-                  <tr key={car.id} className="hover:bg-gray-50">
+                  <tr key={car.id} className="hover:bg-gray-50 transition-colors cursor-pointer">
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
-                        {car.year} {car.make} {car.model}
-                      </div>
-                      <div className="text-sm text-gray-500">{car.location}</div>
+                      <Link href={`/admin/cars/${car.id}/edit`} className="block">
+                        <div className="text-sm font-medium text-gray-900">
+                          {car.year} {car.make} {car.model}
+                        </div>
+                        <div className="text-sm text-gray-500">{car.location}</div>
+                      </Link>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {car.dealers?.name || 'N/A'}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <Link href={`/admin/dealers/${car.dealer_id}/edit`} className="text-sm text-gray-900 hover:text-blue-600 transition-colors">
+                        {car.dealers?.name || 'N/A'}
+                      </Link>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                       ₦{parseInt(car.price).toLocaleString('en-NG')}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 flex-wrap">
                         {car.is_verified && (
                           <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
                             Verified
@@ -227,22 +233,33 @@ export default async function AdminDashboard() {
                             Featured
                           </span>
                         )}
+                        {car.is_blocked && (
+                          <span className="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">
+                            Blocked
+                          </span>
+                        )}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <Link
-                        href={`/admin/cars/${car.id}/edit`}
-                        className="text-blue-600 hover:text-blue-900 mr-4"
-                      >
-                        Edit
-                      </Link>
-                      <Link
-                        href={`/cars/${car.id}`}
-                        className="text-gray-600 hover:text-gray-900"
-                        target="_blank"
-                      >
-                        View
-                      </Link>
+                      <div className="flex items-center gap-2">
+                        <Link
+                          href={`/admin/cars/${car.id}/edit`}
+                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          title="Edit Car"
+                        >
+                          <Edit size={18} />
+                        </Link>
+                        <Link
+                          href={`/cars/${car.id}`}
+                          className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                          target="_blank"
+                          title="View Car"
+                        >
+                          <Eye size={18} />
+                        </Link>
+                        <BlockCarButton carId={car.id} isBlocked={car.is_blocked} />
+                        <DeleteCarButton carId={car.id} carName={`${car.year} ${car.make} ${car.model}`} />
+                      </div>
                     </td>
                   </tr>
                 ))

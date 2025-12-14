@@ -381,7 +381,11 @@ export default function DealerDashboard() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {recentCars.map((car, index) => (
-              <div key={car.id} className={`dealer-car-card dealer-animate-on-scroll dealer-delay-${index + 1}`}>
+              <Link
+                key={car.id}
+                href={`/dealer/cars/${car.id}/edit`}
+                className={`dealer-car-card dealer-animate-on-scroll dealer-delay-${index + 1} block hover:scale-105 transition-transform duration-300 cursor-pointer`}
+              >
                 <div className="dealer-car-image">
                   {car.is_just_arrived && (
                     <div className="dealer-just-arrived-badge">
@@ -401,14 +405,12 @@ export default function DealerDashboard() {
                       <Eye size={16} />
                       {car.views || 0} views
                     </span>
-                    <Link href={`/dealer/cars/${car.id}/edit`}>
-                      <span className="dealer-car-edit-btn">
-                        Edit →
-                      </span>
-                    </Link>
+                    <span className="dealer-car-edit-btn">
+                      Edit →
+                    </span>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}
