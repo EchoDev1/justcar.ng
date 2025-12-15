@@ -32,7 +32,7 @@ export async function GET(request) {
     const sortBy = searchParams.get('sortBy') || 'created_at'
     const sortOrder = searchParams.get('sortOrder') || 'desc'
 
-    const supabase = createClient()
+    const supabase = await createClient()
 
     let query = supabase
       .from('cars')
