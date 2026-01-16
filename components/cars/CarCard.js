@@ -13,6 +13,7 @@ import Badge from '@/components/ui/Badge'
 import DealerBadge, { DealerBadgeIcon } from '@/components/ui/DealerBadge'
 import ChatButton from '@/components/chat/ChatButton'
 import EscrowButton from '@/components/escrow/EscrowButton'
+import { PriceBadgeWithTooltip, SavingsBadge } from '@/components/cars/PriceBadge'
 import { useState, useRef, memo } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -224,8 +225,23 @@ function CarCard({ car, is3D = true }) {
               </h3>
 
               {/* Price with Glow Effect */}
-              <div className="text-3xl font-extrabold bg-gradient-to-r from-blue-400 via-blue-300 to-blue-500 bg-clip-text text-transparent mb-4 drop-shadow-lg animate-price-pulse">
-                {formatNaira(car.price)}
+              <div className="mb-4">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-3xl font-extrabold bg-gradient-to-r from-blue-400 via-blue-300 to-blue-500 bg-clip-text text-transparent drop-shadow-lg animate-price-pulse">
+                    {formatNaira(car.price)}
+                  </span>
+                  {car.price_badge && (
+                    <PriceBadgeWithTooltip
+                      badge={car.price_badge}
+                      variancePercent={car.price_vs_market_pct}
+                      marketAvg={car.market_avg_price}
+                      size="sm"
+                    />
+                  )}
+                </div>
+                {car.savings && car.savings.hasSavings && (
+                  <SavingsBadge savings={car.savings} className="mt-1" />
+                )}
               </div>
 
               {/* Key Specs Grid */}
@@ -368,9 +384,24 @@ function CarCard({ car, is3D = true }) {
           </h3>
 
           {/* Price */}
-          <p className="text-2xl font-bold text-blue-600 mb-3">
-            {formatNaira(car.price)}
-          </p>
+          <div className="mb-3">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-2xl font-bold text-blue-600">
+                {formatNaira(car.price)}
+              </span>
+              {car.price_badge && (
+                <PriceBadgeWithTooltip
+                  badge={car.price_badge}
+                  variancePercent={car.price_vs_market_pct}
+                  marketAvg={car.market_avg_price}
+                  size="sm"
+                />
+              )}
+            </div>
+            {car.savings && car.savings.hasSavings && (
+              <SavingsBadge savings={car.savings} className="mt-1" />
+            )}
+          </div>
 
           {/* Details */}
           <div className="grid grid-cols-2 gap-2 text-sm text-gray-600 mb-3">

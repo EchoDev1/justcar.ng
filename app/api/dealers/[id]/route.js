@@ -14,7 +14,7 @@ export async function GET(request, { params }) {
       return NextResponse.json({ error: 'Dealer ID required' }, { status: 400 })
     }
 
-    const supabase = createClient()
+    const supabase = await createClient()
 
     // Fetch dealer details
     const { data: dealer, error } = await supabase

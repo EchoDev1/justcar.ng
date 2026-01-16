@@ -55,7 +55,10 @@
       "Bash(temp_cars.json)",
       "Bash(git log:*)",
       "Bash(vercel --version:*)",
-      "Bash(vercel:*)"
+      "Bash(vercel:*)",
+      "Bash(vercel project:*)",
+      "Bash(vercel inspect:*)",
+      "Bash(grep:*)"
     ],
     "deny": [],
     "ask": []

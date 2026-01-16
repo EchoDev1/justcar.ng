@@ -7,7 +7,7 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { Car, Home, Users, LogOut, Plus, List, Star, Clock, Shield, DollarSign, MessageSquare, ClipboardCheck, Settings, CreditCard } from 'lucide-react'
+import { Car, Home, Users, LogOut, Plus, List, Star, Clock, Shield, DollarSign, MessageSquare, ClipboardCheck, Settings, CreditCard, UserCheck, AlertTriangle, FileText } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 
@@ -22,12 +22,15 @@ export default function Sidebar() {
     { href: '/admin/premium-verified', label: 'Premium Verified', icon: Star },
     { href: '/admin/just-arrived', label: 'Just Arrived', icon: Clock },
     { href: '/admin/dealers', label: 'Dealers', icon: Users },
+    { href: '/admin/verification', label: 'Dealer Verification', icon: UserCheck },
     { href: '/admin/dealer-permissions', label: 'Permissions', icon: Shield },
     { href: '/admin/dealer-bank-details', label: 'Dealer Bank Details', icon: CreditCard },
+    { href: '/admin/fraud', label: 'Fraud Detection', icon: AlertTriangle },
     { href: '/admin/escrow', label: 'Escrow Management', icon: DollarSign },
     { href: '/admin/payment-accounts', label: 'Payment Accounts', icon: Settings },
     { href: '/admin/chats', label: 'Chats', icon: MessageSquare },
     { href: '/admin/inspections', label: 'Inspections', icon: ClipboardCheck },
+    { href: '/admin/blog', label: 'Blog', icon: FileText },
   ]
 
   const handleLogout = async () => {

@@ -8,11 +8,13 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { MapPin, Gauge, Calendar, Fuel, Settings, Palette, CheckCircle, Phone, MessageCircle } from 'lucide-react'
 import ImageGallery from '@/components/cars/ImageGallery'
-import CarGrid from '@/components/cars/CarGrid'
 import Badge from '@/components/ui/Badge'
 import Button from '@/components/ui/Button'
 import ChatButton from '@/components/chat/ChatButton'
 import EscrowButton from '@/components/escrow/EscrowButton'
+import SimilarCarsSection from '@/components/cars/SimilarCarsSection'
+import PriceIntelligenceSection from '@/components/cars/PriceIntelligenceSection'
+import { PriceBadgeWithTooltip } from '@/components/cars/PriceBadge'
 import { formatNaira, formatNumber, formatDate, generateWhatsAppLink } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
@@ -43,23 +45,6 @@ async function getCar(id) {
   return car
 }
 
-async function getSimilarCars(car) {
-  const supabase = await createClient()
-
-  const { data: cars } = await supabase
-    .from('cars')
-    .select(`
-      *,
-      dealers (name),
-      car_images (image_url, is_primary)
-    `)
-    .eq('make', car.make)
-    .neq('id', car.id)
-    .limit(3)
-
-  return cars || []
-}
-
 export default async function CarDetailPage({ params }) {
   const { id } = await params
   const car = await getCar(id)
@@ -68,7 +53,6 @@ export default async function CarDetailPage({ params }) {
     notFound()
   }
 
-  const similarCars = await getSimilarCars(car)
   const whatsappLink = generateWhatsAppLink(car, car.dealers?.whatsapp)
 
   return (
@@ -101,13 +85,32 @@ export default async function CarDetailPage({ params }) {
               <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
                 {car.year} {car.make} {car.model}
               </h1>
-              <p className="text-4xl font-bold text-blue-600">{formatNaira(car.price)}</p>
+              <div className="flex items-center gap-3 flex-wrap">
+                <p className="text-4xl font-bold text-blue-600">{formatNaira(car.price)}</p>
+                {car.price_badge && (
+                  <PriceBadgeWithTooltip
+                    badge={car.price_badge}
+                    variancePercent={car.price_vs_market_pct}
+                    marketAvg={car.market_avg_price}
+                    size="md"
+                  />
+                )}
+              </div>
             </div>
 
             {/* Image Gallery */}
             <div className="mb-8">
               <ImageGallery images={car.car_images || []} />
             </div>
+
+            {/* Price Intelligence */}
+            <PriceIntelligenceSection
+              carId={car.id}
+              make={car.make}
+              model={car.model}
+              year={car.year}
+              price={car.price}
+            />
 
             {/* Video */}
             {car.car_videos && car.car_videos.length > 0 && (
@@ -355,12 +358,7 @@ export default async function CarDetailPage({ params }) {
         </div>
 
         {/* Similar Cars */}
-        {similarCars.length > 0 && (
-          <div className="mt-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-8">Similar Cars</h2>
-            <CarGrid cars={similarCars} />
-          </div>
-        )}
+        <SimilarCarsSection carId={car.id} limit={6} />
       </div>
     </div>
   )
