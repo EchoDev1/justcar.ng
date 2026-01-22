@@ -13,6 +13,7 @@ import { Search, Car as CarIcon, CheckCircle, Shield, Clock, TrendingUp, Award, 
 import AnimatedCounter from '@/components/ui/AnimatedCounter'
 import Button from '@/components/ui/Button'
 import PaymentWarning from '@/components/ui/PaymentWarning'
+import { getBrandAbbreviation } from '@/lib/utils'
 
 // Lazy load below-the-fold components for faster initial page load
 const FeaturedCarCard = dynamic(() => import('@/components/cars/FeaturedCarCard'), {
@@ -140,33 +141,6 @@ export default function HomePage() {
     }
   }, [])
 
-  // Intersection Observer for timeline items
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const index = parseInt(entry.target.dataset.timelineIndex)
-            setTimeout(() => {
-              setTimelineItemsVisible(prev => {
-                const newVisible = [...prev]
-                newVisible[index] = true
-                return newVisible
-              })
-            }, index * 300) // Stagger animation
-          }
-        })
-      },
-      { threshold: 0.3 }
-    )
-
-    const items = document.querySelectorAll('.timeline-item')
-    items.forEach(item => observer.observe(item))
-
-    return () => {
-      items.forEach(item => observer.unobserve(item))
-    }
-  }, [])
 
   // Intersection Observer for How It Works step cards
   useEffect(() => {
@@ -453,17 +427,17 @@ export default function HomePage() {
     }
   ]
 
-  // Popular brands data
+  // Popular brands data - using centralized brand abbreviations
   const popularBrands = [
-    { name: 'Toyota', count: 342, logo: 'T' },
-    { name: 'Honda', count: 218, logo: 'H' },
-    { name: 'Mercedes-Benz', count: 156, logo: 'M' },
-    { name: 'BMW', count: 124, logo: 'B' },
-    { name: 'Lexus', count: 189, logo: 'L' },
-    { name: 'Nissan', count: 203, logo: 'N' },
-    { name: 'Audi', count: 98, logo: 'A' },
-    { name: 'Ford', count: 167, logo: 'F' }
-  ]
+    { name: 'Toyota', count: 342 },
+    { name: 'Honda', count: 218 },
+    { name: 'Mercedes-Benz', count: 156 },
+    { name: 'BMW', count: 124 },
+    { name: 'Lexus', count: 189 },
+    { name: 'Nissan', count: 203 },
+    { name: 'Audi', count: 98 },
+    { name: 'Ford', count: 167 }
+  ].map(brand => ({ ...brand, logo: getBrandAbbreviation(brand.name) }))
 
 
   // Format price helper

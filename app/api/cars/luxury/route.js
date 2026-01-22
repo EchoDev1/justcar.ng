@@ -9,9 +9,10 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { LUXURY_PRICE_THRESHOLD } from '@/lib/utils'
 
-// LUXURY PRICE THRESHOLD - DO NOT CHANGE
-const LUXURY_THRESHOLD = 150000000 // ₦150 Million
+// LUXURY PRICE THRESHOLD - Centralized in lib/utils.js
+const LUXURY_THRESHOLD = LUXURY_PRICE_THRESHOLD // ₦150 Million
 
 export async function GET(request) {
   try {

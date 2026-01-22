@@ -4,13 +4,11 @@
  */
 
 import { createClient } from '@/lib/supabase/server'
-import { Car, Users, CheckCircle, Clock, Star, TrendingUp, Edit, Eye, Ban, Trash2 } from 'lucide-react'
+import { Car, Users, CheckCircle, Clock, Star, TrendingUp, Edit, Eye, Trash2 } from 'lucide-react'
 import Link from 'next/link'
-import BlockCarButton from '@/components/admin/BlockCarButton'
 import DeleteCarButton from '@/components/admin/DeleteCarButton'
 
-// Cache for 60 seconds for instant loads
-export const revalidate = 60
+// Dynamic data for real-time stats
 export const dynamic = 'force-dynamic'
 
 async function getStats() {
@@ -31,25 +29,33 @@ async function getStats() {
     const sevenDaysAgo = new Date()
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
 
-    // SUPER OPTIMIZED: Only get critical stats, reduce queries from 6 to 3
+    // OPTIMIZED: Parallel queries for stats using existing columns only
     const [
       { count: totalCars },
+      { count: verifiedCars },
       { count: premiumVerifiedCars },
-      { count: totalDealers }
+      { count: justArrivedCars },
+      { count: recentCars },
+      { count: totalDealers },
+      { count: featuredCars }
     ] = await Promise.all([
       supabase.from('cars').select('id', { count: 'exact', head: true }),
+      supabase.from('cars').select('id', { count: 'exact', head: true }).eq('is_verified', true),
       supabase.from('cars').select('id', { count: 'exact', head: true }).eq('is_premium_verified', true),
-      supabase.from('dealers').select('id', { count: 'exact', head: true })
+      supabase.from('cars').select('id', { count: 'exact', head: true }).eq('is_just_arrived', true),
+      supabase.from('cars').select('id', { count: 'exact', head: true }).gte('created_at', sevenDaysAgo.toISOString()),
+      supabase.from('dealers').select('id', { count: 'exact', head: true }),
+      supabase.from('cars').select('id', { count: 'exact', head: true }).eq('is_featured', true)
     ])
 
-    // Return mock data for less critical stats to speed up loading
     return {
       totalCars: totalCars || 0,
-      verifiedCars: Math.floor((totalCars || 0) * 0.7), // Estimate 70% verified
+      verifiedCars: verifiedCars || 0,
       totalDealers: totalDealers || 0,
-      recentCars: Math.floor((totalCars || 0) * 0.1), // Estimate 10% recent
+      recentCars: recentCars || 0,
       premiumVerifiedCars: premiumVerifiedCars || 0,
-      justArrivedCars: Math.floor((totalCars || 0) * 0.05) // Estimate 5% just arrived
+      justArrivedCars: justArrivedCars || 0,
+      featuredCars: featuredCars || 0
     }
   } catch (error) {
     console.error('Error fetching stats:', error)
@@ -59,7 +65,8 @@ async function getStats() {
       totalDealers: 0,
       recentCars: 0,
       premiumVerifiedCars: 0,
-      justArrivedCars: 0
+      justArrivedCars: 0,
+      featuredCars: 0
     }
   }
 }
@@ -75,7 +82,7 @@ async function getRecentCars() {
     // Only fetch essential fields for faster query
     const { data: cars } = await supabase
       .from('cars')
-      .select('id,year,make,model,location,price,is_verified,is_featured,is_blocked,dealer_id,dealers(name)')
+      .select('id,year,make,model,location,price,is_verified,is_featured,dealer_id,dealers(name)')
       .order('created_at', { ascending: false })
       .limit(5)
 
@@ -233,11 +240,6 @@ export default async function AdminDashboard() {
                             Featured
                           </span>
                         )}
-                        {car.is_blocked && (
-                          <span className="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">
-                            Blocked
-                          </span>
-                        )}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
@@ -257,7 +259,6 @@ export default async function AdminDashboard() {
                         >
                           <Eye size={18} />
                         </Link>
-                        <BlockCarButton carId={car.id} isBlocked={car.is_blocked} />
                         <DeleteCarButton carId={car.id} carName={`${car.year} ${car.make} ${car.model}`} />
                       </div>
                     </td>

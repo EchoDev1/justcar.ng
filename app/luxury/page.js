@@ -12,21 +12,14 @@ import { Crown, Shield, Star, Sparkles, TrendingUp, Award, Check, Zap, Eye, Diam
 import CarGrid from '@/components/cars/CarGrid'
 import Button from '@/components/ui/Button'
 import AnimatedCounter from '@/components/ui/AnimatedCounter'
+import { LUXURY_BRANDS, LUXURY_PRICE_THRESHOLD, getBrandAbbreviation, getBrandColor } from '@/lib/utils'
 
-const luxuryBrands = [
-  { name: 'Rolls-Royce', letter: 'RR', color: '#8B4513' },
-  { name: 'Bentley', letter: 'B', color: '#006341' },
-  { name: 'Lamborghini', letter: 'L', color: '#FFC300' },
-  { name: 'Ferrari', letter: 'F', color: '#DC0000' },
-  { name: 'Porsche', letter: 'P', color: '#D5001C' },
-  { name: 'Maserati', letter: 'M', color: '#0C2340' },
-  { name: 'Aston Martin', letter: 'AM', color: '#004225' },
-  { name: 'McLaren', letter: 'MC', color: '#FF8000' },
-  { name: 'Bugatti', letter: 'BG', color: '#C40234' },
-  { name: 'Maybach', letter: 'MB', color: '#000000' },
-  { name: 'Range Rover', letter: 'RR', color: '#005A2B' },
-  { name: 'Mercedes-AMG', letter: 'AMG', color: '#00ADEF' }
-]
+// Generate luxury brands data from centralized config
+const luxuryBrands = LUXURY_BRANDS.map(name => ({
+  name,
+  letter: getBrandAbbreviation(name),
+  color: getBrandColor(name)
+}))
 
 const luxuryTestimonials = [
   {
@@ -95,10 +88,10 @@ export default function LuxuryPortalPage() {
         const response = await fetch('/api/cars/luxury?limit=12')
         const data = await response.json()
 
-        // STRICT FILTER: Only allow cars with price >= 150,000,000
-        // This is a safety check to ensure no cars below 150M appear on luxury page
+        // STRICT FILTER: Only allow cars with price >= ₦150M
+        // This is a safety check to ensure no cars below threshold appear on luxury page
         const luxuryOnlyCars = (data.cars || [])
-          .filter(car => car.price >= 150000000)
+          .filter(car => car.price >= LUXURY_PRICE_THRESHOLD)
           .map(car => ({
             ...car,
             is_luxury_page: true // Flag to indicate this is displayed on luxury page
@@ -398,7 +391,7 @@ export default function LuxuryPortalPage() {
               Featured Masterpieces
             </h2>
             <p className="luxury-section-subtitle">
-              ₦100 Million and Above - Each Vehicle a Work of Art
+              ₦150 Million and Above - Each Vehicle a Work of Art
             </p>
           </div>
 

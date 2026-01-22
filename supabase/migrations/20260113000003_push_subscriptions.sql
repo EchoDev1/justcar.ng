@@ -8,6 +8,13 @@
 -- Drop existing table if needed (uncomment if you want to recreate)
 -- DROP TABLE IF EXISTS push_subscriptions CASCADE;
 
+-- Add user_email column if it doesn't exist
+  ALTER TABLE saved_searches
+  ADD COLUMN IF NOT EXISTS user_email VARCHAR(255);
+
+  -- Create the index
+  CREATE INDEX IF NOT EXISTS idx_saved_searches_email ON saved_searches(user_email);
+
 CREATE TABLE IF NOT EXISTS push_subscriptions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
