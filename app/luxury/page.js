@@ -12,14 +12,7 @@ import { Crown, Shield, Star, Sparkles, TrendingUp, Award, Check, Zap, Eye, Diam
 import CarGrid from '@/components/cars/CarGrid'
 import Button from '@/components/ui/Button'
 import AnimatedCounter from '@/components/ui/AnimatedCounter'
-import { LUXURY_BRANDS, LUXURY_PRICE_THRESHOLD, getBrandAbbreviation, getBrandColor } from '@/lib/utils'
-
-// Generate luxury brands data from centralized config
-const luxuryBrands = LUXURY_BRANDS.map(name => ({
-  name,
-  letter: getBrandAbbreviation(name),
-  color: getBrandColor(name)
-}))
+import { LUXURY_PRICE_THRESHOLD, getBrandAbbreviation, getBrandColor } from '@/lib/utils'
 
 const luxuryTestimonials = [
   {
@@ -56,7 +49,9 @@ const luxuryTestimonials = [
 
 export default function LuxuryPortalPage() {
   const [luxuryCars, setLuxuryCars] = useState([])
+  const [luxuryBrands, setLuxuryBrands] = useState([])
   const [loading, setLoading] = useState(true)
+  const [brandsLoading, setBrandsLoading] = useState(true)
   const [goldParticles, setGoldParticles] = useState([])
   const [statsVisible, setStatsVisible] = useState([false, false, false, false])
   const [brandsVisible, setBrandsVisible] = useState([])
@@ -79,6 +74,34 @@ export default function LuxuryPortalPage() {
     }
 
     setGoldParticles(newParticles)
+  }, [])
+
+  // Fetch luxury brands dynamically (auto-detects any brand with cars >= 150M)
+  useEffect(() => {
+    async function fetchLuxuryBrands() {
+      try {
+        const response = await fetch('/api/cars/luxury/brands')
+        const data = await response.json()
+
+        if (data.brands && data.brands.length > 0) {
+          // Map API response to brand card format
+          const brands = data.brands.map(brand => ({
+            name: brand.name,
+            letter: brand.abbreviation,
+            color: brand.color,
+            count: brand.count
+          }))
+          setLuxuryBrands(brands)
+          console.log(`[LUXURY PAGE] Loaded ${brands.length} luxury brands dynamically`)
+        }
+      } catch (error) {
+        console.error('Error fetching luxury brands:', error)
+      } finally {
+        setBrandsLoading(false)
+      }
+    }
+
+    fetchLuxuryBrands()
   }, [])
 
   // Fetch luxury cars (≥150M ONLY - STRICT FILTERING)
@@ -282,7 +305,7 @@ export default function LuxuryPortalPage() {
           </div>
 
           {/* CTA Button */}
-          <Link href="/cars?price=150000000+">
+          <Link href="/cars?luxury=true">
             <button className="luxury-cta-button">
               <Sparkles size={24} />
               <span>EXPLORE COLLECTION</span>
@@ -346,35 +369,54 @@ export default function LuxuryPortalPage() {
 
           {/* Brand Grid */}
           <div className="luxury-brand-grid">
-            {luxuryBrands.map((brand, index) => (
-              <Link
-                key={brand.name}
-                href={`/cars?make=${brand.name.toLowerCase()}`}
-                data-brand-index={index}
-                className={`luxury-brand-card ${brandsVisible[index] ? 'visible' : ''}`}
-              >
-                {/* Brand Circle */}
-                <div className="luxury-brand-circle">
-                  {/* Rotating border */}
-                  <div className="luxury-brand-border"></div>
-                  {/* Brand letter */}
-                  <div className="luxury-brand-letter" style={{ color: brand.color }}>
-                    {brand.letter}
+            {brandsLoading ? (
+              <div className="col-span-full text-center py-8">
+                <Crown className="animate-pulse mx-auto text-gold" size={48} />
+                <p className="text-gold/70 mt-4">Loading luxury brands...</p>
+              </div>
+            ) : luxuryBrands.length > 0 ? (
+              luxuryBrands.map((brand, index) => (
+                <Link
+                  key={brand.name}
+                  href={`/cars?make=${encodeURIComponent(brand.name)}&luxury=true`}
+                  data-brand-index={index}
+                  className={`luxury-brand-card ${brandsVisible[index] ? 'visible' : ''}`}
+                >
+                  {/* Brand Circle */}
+                  <div className="luxury-brand-circle">
+                    {/* Rotating border */}
+                    <div className="luxury-brand-border"></div>
+                    {/* Brand letter */}
+                    <div className="luxury-brand-letter" style={{ color: brand.color }}>
+                      {brand.letter}
+                    </div>
+                    {/* Glow effect */}
+                    <div className="luxury-brand-glow"></div>
                   </div>
-                  {/* Glow effect */}
-                  <div className="luxury-brand-glow"></div>
-                </div>
 
-                {/* Brand Name */}
-                <div className="luxury-brand-name">{brand.name}</div>
+                  {/* Brand Name */}
+                  <div className="luxury-brand-name">{brand.name}</div>
 
-                {/* Hover overlay */}
-                <div className="luxury-brand-overlay">
-                  <Eye size={24} className="luxury-brand-overlay-icon" />
-                  <p className="luxury-brand-overlay-text">View Collection</p>
-                </div>
-              </Link>
-            ))}
+                  {/* Car count badge */}
+                  {brand.count && (
+                    <div className="luxury-brand-count">
+                      {brand.count} {brand.count === 1 ? 'car' : 'cars'}
+                    </div>
+                  )}
+
+                  {/* Hover overlay */}
+                  <div className="luxury-brand-overlay">
+                    <Eye size={24} className="luxury-brand-overlay-icon" />
+                    <p className="luxury-brand-overlay-text">View Luxury Collection</p>
+                  </div>
+                </Link>
+              ))
+            ) : (
+              <div className="col-span-full text-center py-8">
+                <Crown className="mx-auto text-gold/50" size={48} />
+                <p className="text-gold/70 mt-4">No luxury brands available yet</p>
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -559,7 +601,7 @@ export default function LuxuryPortalPage() {
           </p>
 
           <div className="luxury-cta-buttons">
-            <Link href="/cars?price=150000000+">
+            <Link href="/cars?luxury=true">
               <button className="luxury-cta-primary">
                 <Sparkles size={20} />
                 View Collection

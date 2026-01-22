@@ -8,11 +8,14 @@
 import { useState, useEffect, useCallback, Suspense, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useSearchParams } from 'next/navigation'
+import Link from 'next/link'
 import CarGrid from '@/components/cars/CarGrid'
 import FilterSidebar from '@/components/cars/FilterSidebar'
 import SearchBar from '@/components/cars/SearchBar'
 import Loading from '@/components/ui/Loading'
 import Select from '@/components/ui/Select'
+import { Crown, X } from 'lucide-react'
+import { LUXURY_PRICE_THRESHOLD } from '@/lib/utils'
 
 function CarsPageContent() {
   const searchParams = useSearchParams()
@@ -21,10 +24,14 @@ function CarsPageContent() {
   const [totalCount, setTotalCount] = useState(0)
   const [currentPage, setCurrentPage] = useState(1)
   const ITEMS_PER_PAGE = 12
+
+  // Luxury mode - when true, only shows cars >= 150M
+  const isLuxuryMode = searchParams.get('luxury') === 'true'
+
   const [filters, setFilters] = useState({
     make: searchParams.get('make') || '',
     brandLetter: searchParams.get('brandLetter') || '',
-    minPrice: '',
+    minPrice: isLuxuryMode ? LUXURY_PRICE_THRESHOLD.toString() : '',
     maxPrice: '',
     minYear: '',
     maxYear: '',
@@ -130,10 +137,21 @@ function CarsPageContent() {
     const make = searchParams.get('make')
     const price = searchParams.get('price')
     const brandLetter = searchParams.get('brandLetter')
+    const luxury = searchParams.get('luxury')
 
     // Apply search term
     if (search) {
       setSearchTerm(search)
+    }
+
+    // Handle luxury mode - ALWAYS set minPrice to 150M when luxury=true
+    if (luxury === 'true') {
+      setFilters(prev => ({
+        ...prev,
+        minPrice: LUXURY_PRICE_THRESHOLD.toString(),
+        make: make || prev.make // Also set make if provided (for brand filtering)
+      }))
+      return // Skip other price handling in luxury mode
     }
 
     // Handle direct body_type parameter (from category cards)
@@ -202,7 +220,9 @@ function CarsPageContent() {
   const handleResetFilters = () => {
     setFilters({
       make: '',
-      minPrice: '',
+      brandLetter: '',
+      // Preserve luxury mode minimum price if in luxury mode
+      minPrice: isLuxuryMode ? LUXURY_PRICE_THRESHOLD.toString() : '',
       maxPrice: '',
       minYear: '',
       maxYear: '',
@@ -229,7 +249,38 @@ function CarsPageContent() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Browse Cars</h1>
+          {isLuxuryMode ? (
+            <div className="flex items-center gap-4 mb-4">
+              <div className="flex items-center gap-3">
+                <Crown className="text-yellow-500" size={32} />
+                <h1 className="text-3xl font-bold text-gray-900">Luxury Collection</h1>
+              </div>
+              <Link
+                href="/cars"
+                className="flex items-center gap-1 px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded-full text-gray-600 transition-colors"
+              >
+                <X size={14} />
+                Exit Luxury Mode
+              </Link>
+            </div>
+          ) : (
+            <h1 className="text-3xl font-bold text-gray-900 mb-4">Browse Cars</h1>
+          )}
+
+          {/* Luxury Mode Banner */}
+          {isLuxuryMode && (
+            <div className="bg-gradient-to-r from-yellow-50 to-amber-50 border border-yellow-200 rounded-lg p-4 mb-6">
+              <div className="flex items-center gap-2 text-yellow-800">
+                <Crown size={20} />
+                <span className="font-medium">Viewing luxury vehicles only (starting from ₦150 Million)</span>
+              </div>
+              {filters.make && (
+                <p className="text-yellow-700 mt-1 text-sm">
+                  Filtered by brand: <span className="font-semibold">{filters.make}</span>
+                </p>
+              )}
+            </div>
+          )}
 
           {/* Search Bar */}
           <div className="mb-6">
