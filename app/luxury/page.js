@@ -12,7 +12,15 @@ import { Crown, Shield, Star, Sparkles, TrendingUp, Award, Check, Zap, Eye, Diam
 import CarGrid from '@/components/cars/CarGrid'
 import Button from '@/components/ui/Button'
 import AnimatedCounter from '@/components/ui/AnimatedCounter'
-import { LUXURY_PRICE_THRESHOLD, getBrandAbbreviation, getBrandColor } from '@/lib/utils'
+import { LUXURY_BRANDS, LUXURY_PRICE_THRESHOLD, getBrandAbbreviation, getBrandColor } from '@/lib/utils'
+
+// Default luxury brands - ALWAYS displayed
+const DEFAULT_LUXURY_BRANDS = LUXURY_BRANDS.map(name => ({
+  name,
+  letter: getBrandAbbreviation(name),
+  color: getBrandColor(name),
+  count: null // Will be updated from API if available
+}))
 
 const luxuryTestimonials = [
   {
@@ -49,9 +57,8 @@ const luxuryTestimonials = [
 
 export default function LuxuryPortalPage() {
   const [luxuryCars, setLuxuryCars] = useState([])
-  const [luxuryBrands, setLuxuryBrands] = useState([])
+  const [luxuryBrands, setLuxuryBrands] = useState(DEFAULT_LUXURY_BRANDS) // Start with default brands
   const [loading, setLoading] = useState(true)
-  const [brandsLoading, setBrandsLoading] = useState(true)
   const [goldParticles, setGoldParticles] = useState([])
   const [statsVisible, setStatsVisible] = useState([false, false, false, false])
   const [brandsVisible, setBrandsVisible] = useState([])
@@ -76,7 +83,8 @@ export default function LuxuryPortalPage() {
     setGoldParticles(newParticles)
   }, [])
 
-  // Fetch luxury brands dynamically (auto-detects any brand with cars >= 150M)
+  // Fetch luxury brands dynamically and merge with defaults
+  // Default brands ALWAYS show, API adds counts + any new brands with cars >= 150M
   useEffect(() => {
     async function fetchLuxuryBrands() {
       try {
@@ -84,20 +92,50 @@ export default function LuxuryPortalPage() {
         const data = await response.json()
 
         if (data.brands && data.brands.length > 0) {
-          // Map API response to brand card format
-          const brands = data.brands.map(brand => ({
-            name: brand.name,
-            letter: brand.abbreviation,
-            color: brand.color,
-            count: brand.count
-          }))
-          setLuxuryBrands(brands)
-          console.log(`[LUXURY PAGE] Loaded ${brands.length} luxury brands dynamically`)
+          // Create a map of API brands for quick lookup
+          const apiBrandsMap = {}
+          data.brands.forEach(brand => {
+            apiBrandsMap[brand.name] = {
+              name: brand.name,
+              letter: brand.abbreviation,
+              color: brand.color,
+              count: brand.count
+            }
+          })
+
+          // Start with default brands, updating counts from API
+          const mergedBrands = DEFAULT_LUXURY_BRANDS.map(defaultBrand => {
+            if (apiBrandsMap[defaultBrand.name]) {
+              // Update with count from API
+              return {
+                ...defaultBrand,
+                count: apiBrandsMap[defaultBrand.name].count
+              }
+            }
+            return defaultBrand // Keep default brand even if no cars currently
+          })
+
+          // Add any NEW brands from API that are not in defaults (auto-detected luxury brands)
+          const defaultBrandNames = new Set(LUXURY_BRANDS)
+          data.brands.forEach(apiBrand => {
+            if (!defaultBrandNames.has(apiBrand.name)) {
+              // New luxury brand detected! Add it to the list
+              mergedBrands.push({
+                name: apiBrand.name,
+                letter: apiBrand.abbreviation,
+                color: apiBrand.color,
+                count: apiBrand.count
+              })
+              console.log(`[LUXURY PAGE] Auto-detected new luxury brand: ${apiBrand.name}`)
+            }
+          })
+
+          setLuxuryBrands(mergedBrands)
+          console.log(`[LUXURY PAGE] Total brands: ${mergedBrands.length} (${LUXURY_BRANDS.length} default + ${mergedBrands.length - LUXURY_BRANDS.length} auto-detected)`)
         }
       } catch (error) {
         console.error('Error fetching luxury brands:', error)
-      } finally {
-        setBrandsLoading(false)
+        // Keep default brands on error
       }
     }
 
@@ -369,54 +407,42 @@ export default function LuxuryPortalPage() {
 
           {/* Brand Grid */}
           <div className="luxury-brand-grid">
-            {brandsLoading ? (
-              <div className="col-span-full text-center py-8">
-                <Crown className="animate-pulse mx-auto text-gold" size={48} />
-                <p className="text-gold/70 mt-4">Loading luxury brands...</p>
-              </div>
-            ) : luxuryBrands.length > 0 ? (
-              luxuryBrands.map((brand, index) => (
-                <Link
-                  key={brand.name}
-                  href={`/cars?make=${encodeURIComponent(brand.name)}&luxury=true`}
-                  data-brand-index={index}
-                  className={`luxury-brand-card ${brandsVisible[index] ? 'visible' : ''}`}
-                >
-                  {/* Brand Circle */}
-                  <div className="luxury-brand-circle">
-                    {/* Rotating border */}
-                    <div className="luxury-brand-border"></div>
-                    {/* Brand letter */}
-                    <div className="luxury-brand-letter" style={{ color: brand.color }}>
-                      {brand.letter}
-                    </div>
-                    {/* Glow effect */}
-                    <div className="luxury-brand-glow"></div>
+            {luxuryBrands.map((brand, index) => (
+              <Link
+                key={brand.name}
+                href={`/cars?make=${encodeURIComponent(brand.name)}&luxury=true`}
+                data-brand-index={index}
+                className={`luxury-brand-card ${brandsVisible[index] ? 'visible' : ''}`}
+              >
+                {/* Brand Circle */}
+                <div className="luxury-brand-circle">
+                  {/* Rotating border */}
+                  <div className="luxury-brand-border"></div>
+                  {/* Brand letter */}
+                  <div className="luxury-brand-letter" style={{ color: brand.color }}>
+                    {brand.letter}
                   </div>
+                  {/* Glow effect */}
+                  <div className="luxury-brand-glow"></div>
+                </div>
 
-                  {/* Brand Name */}
-                  <div className="luxury-brand-name">{brand.name}</div>
+                {/* Brand Name */}
+                <div className="luxury-brand-name">{brand.name}</div>
 
-                  {/* Car count badge */}
-                  {brand.count && (
-                    <div className="luxury-brand-count">
-                      {brand.count} {brand.count === 1 ? 'car' : 'cars'}
-                    </div>
-                  )}
-
-                  {/* Hover overlay */}
-                  <div className="luxury-brand-overlay">
-                    <Eye size={24} className="luxury-brand-overlay-icon" />
-                    <p className="luxury-brand-overlay-text">View Luxury Collection</p>
+                {/* Car count badge - only show if count is available */}
+                {brand.count > 0 && (
+                  <div className="luxury-brand-count">
+                    {brand.count} {brand.count === 1 ? 'car' : 'cars'}
                   </div>
-                </Link>
-              ))
-            ) : (
-              <div className="col-span-full text-center py-8">
-                <Crown className="mx-auto text-gold/50" size={48} />
-                <p className="text-gold/70 mt-4">No luxury brands available yet</p>
-              </div>
-            )}
+                )}
+
+                {/* Hover overlay */}
+                <div className="luxury-brand-overlay">
+                  <Eye size={24} className="luxury-brand-overlay-icon" />
+                  <p className="luxury-brand-overlay-text">View Collection</p>
+                </div>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
