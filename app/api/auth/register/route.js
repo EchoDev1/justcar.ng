@@ -1,11 +1,13 @@
 /**
- * Buyer Registration API - Simple Version
+ * Buyer Registration API with Email Verification
  * POST /api/auth/register
- * Creates buyer account using standard Supabase auth
+ * Creates buyer account and sends verification email via Resend
  */
 
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
+import { sendEmailConfirmation } from '@/lib/email/resend'
+import crypto from 'crypto'
 
 export async function POST(request) {
   console.log('[REGISTER] Registration request received')
@@ -39,32 +41,100 @@ export async function POST(request) {
       )
     }
 
-    // Create Supabase client
+    // Create Supabase client with service role for admin operations
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      serviceKey || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
     )
 
-    // Sign up user with Supabase Auth
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email: email.toLowerCase(),
-      password,
-      options: {
-        data: {
+    // Check if buyer already exists
+    const { data: existingBuyer } = await supabase
+      .from('buyers')
+      .select('id, email, email_verified')
+      .eq('email', email.toLowerCase())
+      .maybeSingle()
+
+    if (existingBuyer) {
+      if (existingBuyer.email_verified) {
+        return NextResponse.json(
+          { error: 'An account with this email already exists. Please login instead.' },
+          { status: 409 }
+        )
+      } else {
+        // Resend verification email for unverified account
+        const verificationToken = crypto.randomBytes(32).toString('hex')
+        const tokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
+
+        await supabase
+          .from('buyers')
+          .update({
+            verification_token: verificationToken,
+            verification_token_expires_at: tokenExpiry.toISOString()
+          })
+          .eq('id', existingBuyer.id)
+
+        const confirmationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/verify-email?token=${verificationToken}`
+
+        const emailResult = await sendEmailConfirmation({
+          userEmail: email,
+          userName: fullName,
+          confirmationUrl,
+          userType: 'buyer'
+        })
+
+        console.log('[REGISTER] Resend verification email result:', emailResult)
+
+        return NextResponse.json({
+          success: true,
+          message: 'A verification email has been resent to your email address. Please check your inbox.',
+          requiresVerification: true
+        })
+      }
+    }
+
+    // Create auth user in Supabase Auth
+    let authData, authError
+
+    if (serviceKey) {
+      // Use admin API if service key available
+      const result = await supabase.auth.admin.createUser({
+        email: email.toLowerCase(),
+        password,
+        email_confirm: false,
+        user_metadata: {
           full_name: fullName,
           phone,
           location,
           user_type: 'buyer'
         }
-      }
-    })
+      })
+      authData = result.data
+      authError = result.error
+    } else {
+      // Fallback to regular signup
+      const result = await supabase.auth.signUp({
+        email: email.toLowerCase(),
+        password,
+        options: {
+          data: {
+            full_name: fullName,
+            phone,
+            location,
+            user_type: 'buyer'
+          }
+        }
+      })
+      authData = result.data
+      authError = result.error
+    }
 
     if (authError) {
       console.error('[REGISTER] Auth error:', authError)
 
       if (authError.message.includes('already registered')) {
         return NextResponse.json(
-          { error: 'An account with this email already exists. Please login instead.' },
+          { error: 'An account with this email already exists' },
           { status: 409 }
         )
       }
@@ -75,7 +145,6 @@ export async function POST(request) {
       )
     }
 
-    // Check if user was created
     if (!authData.user) {
       return NextResponse.json(
         { error: 'Failed to create user account' },
@@ -83,13 +152,12 @@ export async function POST(request) {
       )
     }
 
-    // Create buyer profile using service role if available, otherwise try with anon key
-    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-    const dbClient = serviceKey
-      ? createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, serviceKey)
-      : supabase
+    // Generate verification token
+    const verificationToken = crypto.randomBytes(32).toString('hex')
+    const tokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
 
-    const { error: insertError } = await dbClient
+    // Create buyer profile in buyers table
+    const { error: insertError } = await supabase
       .from('buyers')
       .insert({
         id: authData.user.id,
@@ -97,20 +165,47 @@ export async function POST(request) {
         full_name: fullName,
         phone: phone || null,
         location: location || null,
-        verified: false
+        verified: false,
+        email_verified: false,
+        verification_token: verificationToken,
+        verification_token_expires_at: tokenExpiry.toISOString()
       })
 
     if (insertError) {
       console.error('[REGISTER] Database error:', insertError)
-      // Don't fail registration if buyer profile creation fails
-      // User can still login and we can create profile later
+      // Try to clean up auth user
+      if (serviceKey) {
+        await supabase.auth.admin.deleteUser(authData.user.id)
+      }
+      return NextResponse.json(
+        { error: 'Failed to create buyer profile: ' + insertError.message },
+        { status: 500 }
+      )
+    }
+
+    // Send verification email via Resend
+    const confirmationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/verify-email?token=${verificationToken}`
+
+    const emailResult = await sendEmailConfirmation({
+      userEmail: email,
+      userName: fullName,
+      confirmationUrl,
+      userType: 'buyer'
+    })
+
+    console.log('[REGISTER] Email send result:', emailResult)
+
+    if (!emailResult.success) {
+      console.error('[REGISTER] Email send error:', emailResult.error)
+      // Don't fail registration, user can request resend
     }
 
     console.log('[REGISTER] Registration successful for:', email)
 
     return NextResponse.json({
       success: true,
-      message: 'Account created successfully! You can now login.',
+      message: 'Account created successfully! Please check your email to verify your account.',
+      requiresVerification: true,
       user: {
         id: authData.user.id,
         email: authData.user.email

@@ -20,6 +20,8 @@ function BuyerAuthContent() {
   const [success, setSuccess] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [selectedCar, setSelectedCar] = useState(null)
+  const [registrationComplete, setRegistrationComplete] = useState(false)
+  const [registeredEmail, setRegisteredEmail] = useState('')
 
   const carId = searchParams.get('carId')
   const action = searchParams.get('action') // 'buy', 'chat', 'save'
@@ -169,10 +171,12 @@ function BuyerAuthContent() {
         throw new Error(data.error || 'Registration failed')
       }
 
-      // Show success message and switch to login
-      setSuccess(data.message || 'Account created successfully! Please login.')
+      // Show success message about email verification
+      setSuccess(data.message || 'Account created! Please check your email to verify your account.')
+      setRegistrationComplete(true)
+      setRegisteredEmail(registerData.email)
 
-      // Clear form and switch to login
+      // Clear form
       setRegisterData({
         fullName: '',
         email: '',
@@ -181,17 +185,54 @@ function BuyerAuthContent() {
         password: '',
         confirmPassword: ''
       })
-
-      // Auto-switch to login after 2 seconds
-      setTimeout(() => {
-        setIsLogin(true)
-        setSuccess('')
-      }, 2000)
     } catch (error) {
       setError(error.message || 'Registration failed. Please try again.')
     } finally {
       setLoading(false)
     }
+  }
+
+  // Handle resend verification email
+  const handleResendVerification = async () => {
+    const emailToUse = registeredEmail || registerData.email
+    if (!emailToUse) {
+      setError('Please enter your email address')
+      return
+    }
+
+    setLoading(true)
+    setError('')
+    setSuccess('')
+
+    try {
+      const response = await fetch('/api/auth/resend-verification', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email: emailToUse })
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        setSuccess(data.message || 'Verification email sent! Please check your inbox.')
+      } else {
+        setError(data.error || 'Failed to resend verification email')
+      }
+    } catch (error) {
+      setError('Failed to resend verification email. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Reset registration state
+  const handleBackToRegister = () => {
+    setRegistrationComplete(false)
+    setRegisteredEmail('')
+    setSuccess('')
+    setError('')
   }
 
   const primaryImage = selectedCar?.car_images?.find(img => img.is_primary) || selectedCar?.car_images?.[0]
@@ -306,15 +347,60 @@ function BuyerAuthContent() {
                   </div>
                 )}
 
-                {success && (
+                {success && !registrationComplete && (
                   <div className="mb-4 bg-green-500/20 border border-green-500/50 backdrop-blur-sm text-white px-4 py-3 rounded-lg flex items-center space-x-2">
                     <CheckCircle size={20} />
                     <span>{success}</span>
                   </div>
                 )}
 
+                {/* Registration Complete - Email Verification Required */}
+                {registrationComplete && (
+                  <div className="mb-6 bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/50 backdrop-blur-sm text-white p-6 rounded-xl">
+                    <div className="flex items-start space-x-3 mb-4">
+                      <div className="w-12 h-12 rounded-full bg-green-500/30 flex items-center justify-center flex-shrink-0">
+                        <Mail size={24} className="text-green-400" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-lg mb-1">Check Your Email</h3>
+                        <p className="text-white/80 text-sm">
+                          We've sent a verification link to <strong>{registeredEmail}</strong>
+                        </p>
+                      </div>
+                    </div>
+                    <p className="text-white/70 text-sm mb-4">
+                      Click the link in the email to verify your account. The link expires in 24 hours.
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <button
+                        onClick={handleResendVerification}
+                        disabled={loading}
+                        className="flex-1 bg-white/10 hover:bg-white/20 text-white py-2.5 px-4 rounded-lg font-medium text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                      >
+                        {loading ? (
+                          <span>Sending...</span>
+                        ) : (
+                          <>
+                            <Mail size={16} />
+                            <span>Resend Email</span>
+                          </>
+                        )}
+                      </button>
+                      <button
+                        onClick={handleBackToRegister}
+                        className="flex-1 bg-transparent border border-white/30 hover:border-white/50 text-white py-2.5 px-4 rounded-lg font-medium text-sm transition-all"
+                      >
+                        Use Different Email
+                      </button>
+                    </div>
+                    <p className="text-white/50 text-xs mt-4 text-center">
+                      Didn't receive the email? Check your spam folder or click "Resend Email"
+                    </p>
+                  </div>
+                )}
+
                 {/* Login Form */}
-                {isLogin ? (
+                {isLogin && !registrationComplete ? (
                   <form onSubmit={handleLogin} className="space-y-4">
                     <div>
                       <label className="block text-white font-medium mb-2">Email Address</label>
@@ -363,7 +449,7 @@ function BuyerAuthContent() {
                       {loading ? 'Signing in...' : 'Sign In'}
                     </button>
                   </form>
-                ) : (
+                ) : !registrationComplete ? (
                   // Registration Form
                   <form onSubmit={handleRegister} className="space-y-4">
                     <div>
@@ -479,7 +565,7 @@ function BuyerAuthContent() {
                       {loading ? 'Creating Account...' : 'Create Account'}
                     </button>
                   </form>
-                )}
+                ) : null}
 
                 {/* Back to home */}
                 <div className="mt-6 text-center">
