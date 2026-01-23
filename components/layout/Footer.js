@@ -7,7 +7,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Car, Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin, MessageCircle, Shield, CheckCircle, Lock } from 'lucide-react'
+import { Car, Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin, MessageCircle, Shield, CheckCircle, Lock, Youtube } from 'lucide-react'
 
 export default function Footer() {
   const [email, setEmail] = useState('')
@@ -65,19 +65,61 @@ export default function Footer() {
               Nigeria's trusted platform for buying quality cars. Find your dream car today with verified listings and transparent pricing.
             </p>
 
-            {/* Social Icons */}
+            {/* Social Icons - Responsive */}
             <div className="social-icons-container">
-              <a href="#" className="social-icon" aria-label="Facebook">
-                <Facebook size={18} />
+              <a
+                href="https://facebook.com/justcarsng"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="social-icon"
+                aria-label="Facebook"
+              >
+                <Facebook />
               </a>
-              <a href="#" className="social-icon" aria-label="Twitter">
-                <Twitter size={18} />
+              <a
+                href="https://twitter.com/justcarsng"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="social-icon"
+                aria-label="Twitter"
+              >
+                <Twitter />
               </a>
-              <a href="#" className="social-icon" aria-label="Instagram">
-                <Instagram size={18} />
+              <a
+                href="https://instagram.com/justcarsng"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="social-icon"
+                aria-label="Instagram"
+              >
+                <Instagram />
               </a>
-              <a href="#" className="social-icon" aria-label="LinkedIn">
-                <Linkedin size={18} />
+              <a
+                href="https://linkedin.com/company/justcarsng"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="social-icon"
+                aria-label="LinkedIn"
+              >
+                <Linkedin />
+              </a>
+              <a
+                href="https://wa.me/2348148527697"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="social-icon"
+                aria-label="WhatsApp"
+              >
+                <MessageCircle />
+              </a>
+              <a
+                href="https://youtube.com/@justcarsng"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="social-icon"
+                aria-label="YouTube"
+              >
+                <Youtube />
               </a>
             </div>
           </div>

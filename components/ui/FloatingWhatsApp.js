@@ -1,17 +1,26 @@
 'use client'
 
-import { useState } from 'react'
-import { MessageCircle, X } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { MessageCircle } from 'lucide-react'
 
 export default function FloatingWhatsApp() {
   const [showTooltip, setShowTooltip] = useState(false)
-  const whatsappNumber = '2348012345678' // Replace with actual number
+  const [isVisible, setIsVisible] = useState(false)
+  const whatsappNumber = '2348148527697'
   const defaultMessage = 'Hi! I\'m interested in buying a car from JustCars.ng'
+
+  useEffect(() => {
+    // Show button after a short delay for better UX
+    const timer = setTimeout(() => setIsVisible(true), 1500)
+    return () => clearTimeout(timer)
+  }, [])
 
   const handleWhatsAppClick = () => {
     const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(defaultMessage)}`
     window.open(url, '_blank', 'noopener,noreferrer')
   }
+
+  if (!isVisible) return null
 
   return (
     <div className="floating-whatsapp-container">
@@ -28,10 +37,12 @@ export default function FloatingWhatsApp() {
         onClick={handleWhatsAppClick}
         onMouseEnter={() => setShowTooltip(true)}
         onMouseLeave={() => setShowTooltip(false)}
+        onFocus={() => setShowTooltip(true)}
+        onBlur={() => setShowTooltip(false)}
         className="whatsapp-button"
         aria-label="Contact us on WhatsApp"
       >
-        <MessageCircle size={28} />
+        <MessageCircle />
       </button>
     </div>
   )
