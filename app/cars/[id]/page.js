@@ -14,6 +14,10 @@ import ChatButton from '@/components/chat/ChatButton'
 import EscrowButton from '@/components/escrow/EscrowButton'
 import SimilarCarsSection from '@/components/cars/SimilarCarsSection'
 import PriceIntelligenceSection from '@/components/cars/PriceIntelligenceSection'
+import PriceHistorySection from '@/components/cars/PriceHistorySection'
+import FinancingCalculator from '@/components/cars/FinancingCalculator'
+import MakeOfferButton from '@/components/cars/MakeOfferButton'
+import BookTestDriveButton from '@/components/cars/BookTestDriveButton'
 import { PriceBadgeWithTooltip } from '@/components/cars/PriceBadge'
 import { formatNaira, formatNumber, formatDate, generateWhatsAppLink } from '@/lib/utils'
 
@@ -110,6 +114,12 @@ export default async function CarDetailPage({ params }) {
               model={car.model}
               year={car.year}
               price={car.price}
+            />
+
+            {/* Price History */}
+            <PriceHistorySection
+              carId={car.id}
+              currentPrice={car.price}
             />
 
             {/* Video */}
@@ -303,6 +313,38 @@ export default async function CarDetailPage({ params }) {
                     variant="primary"
                   />
 
+                  {/* Make an Offer */}
+                  <MakeOfferButton
+                    car={{
+                      id: car.id,
+                      make: car.make,
+                      model: car.model,
+                      year: car.year,
+                      price: car.price
+                    }}
+                    dealer={{
+                      id: car.dealers?.id,
+                      name: car.dealers?.name
+                    }}
+                    variant="secondary"
+                  />
+
+                  {/* Book Test Drive */}
+                  <BookTestDriveButton
+                    car={{
+                      id: car.id,
+                      make: car.make,
+                      model: car.model,
+                      year: car.year,
+                      price: car.price
+                    }}
+                    dealer={{
+                      id: car.dealers?.id,
+                      name: car.dealers?.name
+                    }}
+                    variant="outline"
+                  />
+
                   {/* Chat with Dealer */}
                   <ChatButton
                     car={{
@@ -337,7 +379,7 @@ export default async function CarDetailPage({ params }) {
               </div>
 
               {/* Safety Tips */}
-              <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-6 border border-green-200">
+              <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-6 border border-green-200 mb-6">
                 <h3 className="font-bold text-gray-900 mb-3">💡 Secure Purchase Tips</h3>
                 <ul className="text-sm text-gray-700 space-y-2">
                   <li>✓ Use Escrow Protection for secure payment</li>
@@ -353,6 +395,13 @@ export default async function CarDetailPage({ params }) {
                   </p>
                 </div>
               </div>
+
+              {/* Financing Calculator */}
+              <FinancingCalculator
+                carPrice={car.price}
+                carTitle={`${car.year} ${car.make} ${car.model}`}
+                compact={true}
+              />
             </div>
           </div>
         </div>

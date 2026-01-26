@@ -27,13 +27,55 @@ export default function DeleteCarButton({ carId, carName }) {
     try {
       const supabase = createClient()
 
-      // Delete car images first (cascade should handle this, but being explicit)
+      // Get image paths to delete from storage
+      const { data: images } = await supabase
+        .from('car_images')
+        .select('image_url')
+        .eq('car_id', carId)
+
+      // Get video paths to delete from storage
+      const { data: videos } = await supabase
+        .from('car_videos')
+        .select('video_url')
+        .eq('car_id', carId)
+
+      // Delete images from storage
+      if (images && images.length > 0) {
+        const imagePaths = images
+          .map(img => {
+            const url = img.image_url
+            const match = url.match(/car-images\/(.+)$/)
+            return match ? match[1] : null
+          })
+          .filter(Boolean)
+
+        if (imagePaths.length > 0) {
+          await supabase.storage.from('car-images').remove(imagePaths)
+        }
+      }
+
+      // Delete videos from storage
+      if (videos && videos.length > 0) {
+        const videoPaths = videos
+          .map(vid => {
+            const url = vid.video_url
+            const match = url.match(/car-videos\/(.+)$/)
+            return match ? match[1] : null
+          })
+          .filter(Boolean)
+
+        if (videoPaths.length > 0) {
+          await supabase.storage.from('car-videos').remove(videoPaths)
+        }
+      }
+
+      // Delete car images from database
       await supabase
         .from('car_images')
         .delete()
         .eq('car_id', carId)
 
-      // Delete car videos
+      // Delete car videos from database
       await supabase
         .from('car_videos')
         .delete()

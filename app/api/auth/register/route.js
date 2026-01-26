@@ -10,8 +10,6 @@ import { sendEmailConfirmation } from '@/lib/email/resend'
 import crypto from 'crypto'
 
 export async function POST(request) {
-  console.log('[REGISTER] Registration request received')
-
   try {
     const body = await request.json()
     const { email, password, fullName, phone, location } = body
@@ -82,8 +80,6 @@ export async function POST(request) {
           confirmationUrl,
           userType: 'buyer'
         })
-
-        console.log('[REGISTER] Resend verification email result:', emailResult)
 
         return NextResponse.json({
           success: true,
@@ -193,14 +189,10 @@ export async function POST(request) {
       userType: 'buyer'
     })
 
-    console.log('[REGISTER] Email send result:', emailResult)
-
     if (!emailResult.success) {
       console.error('[REGISTER] Email send error:', emailResult.error)
       // Don't fail registration, user can request resend
     }
-
-    console.log('[REGISTER] Registration successful for:', email)
 
     return NextResponse.json({
       success: true,

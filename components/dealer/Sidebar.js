@@ -10,7 +10,9 @@ import { usePathname, useRouter } from 'next/navigation'
 import {
   Car, Home, Plus, List, Star, Clock, LogOut,
   CreditCard, TrendingUp, User, MessageSquare,
-  BarChart3, Crown, Shield, Settings, Menu, X
+  BarChart3, Crown, Shield, Settings, Menu, X,
+  Users, Bell, Upload, RefreshCw, FileText,
+  DollarSign, UserPlus
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
@@ -52,9 +54,17 @@ export default function DealerSidebar({ dealer }) {
     { href: '/dealer/subscription', label: 'Subscription', icon: Crown, requiresTier: null, highlight: !dealer?.subscription_tier || dealer?.subscription_tier === 'basic' },
     { href: '/dealer/cars', label: 'My Inventory', icon: List, requiresTier: null },
     { href: '/dealer/cars/new', label: 'Add New Car', icon: Plus, requiresTier: null },
+    { href: '/dealer/bulk-upload', label: 'Bulk Upload', icon: Upload, requiresTier: null },
+    { href: '/dealer/leads', label: 'Lead Management', icon: Users, requiresTier: null },
+    { href: '/dealer/reviews', label: 'Reviews & Ratings', icon: Star, requiresTier: null },
+    { href: '/dealer/trade-ins', label: 'Trade-In Requests', icon: RefreshCw, requiresTier: null },
+    { href: '/dealer/alerts', label: 'Inventory Alerts', icon: Bell, requiresTier: null },
     { href: '/dealer/analytics', label: 'Analytics', icon: BarChart3, requiresTier: 'premium' },
+    { href: '/dealer/reports', label: 'Performance Reports', icon: FileText, requiresTier: 'premium' },
+    { href: '/dealer/competitor-pricing', label: 'Competitor Pricing', icon: DollarSign, requiresTier: 'premium' },
     { href: '/dealer/messages', label: 'Messages', icon: MessageSquare, requiresTier: 'premium' },
     { href: '/dealer/payments', label: 'Earnings', icon: CreditCard, requiresTier: 'premium' },
+    { href: '/dealer/staff', label: 'Staff Accounts', icon: UserPlus, requiresTier: 'luxury' },
     { href: '/dealer/profile', label: 'Profile & Settings', icon: Settings, requiresTier: null },
   ]
 
