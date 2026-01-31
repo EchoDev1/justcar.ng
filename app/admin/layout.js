@@ -15,8 +15,7 @@ export const metadata = {
 }
 
 export const viewport = {
-  width: 'device-width',
-  initialScale: 1,
+  width: 1024,
   themeColor: '#3B82F6',
 }
 
@@ -47,7 +46,7 @@ export default async function AdminLayout({ children }) {
       return (
         <div className="flex min-h-screen bg-gray-100">
           <Sidebar />
-          <main className="flex-1 p-8">
+          <main className="flex-1 p-4 sm:p-6 lg:p-8 pt-20 lg:pt-8 min-h-screen overflow-y-auto">
             {children}
           </main>
         </div>
