@@ -2,6 +2,7 @@
 -- BUYER MANAGEMENT SYSTEM MIGRATION
 -- Date: 2026-01-24
 -- ============================================================================
+
 -- This migration adds:
 -- 1. User status management (banned, suspended)
 -- 2. Admin notes and action tracking for buyers
