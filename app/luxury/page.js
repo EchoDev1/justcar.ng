@@ -307,7 +307,7 @@ export default function LuxuryPortalPage() {
               <div className="absolute inset-5 rounded-full border border-amber-400/30 pointer-events-none" />
 
               {/* Rotating Ring with Gold "WHEN LUXURY MEETS MOTION" Text */}
-              <div className="absolute inset-0 w-full h-full animate-[spin_22s_linear_infinite]">
+              <div className="absolute inset-0 w-full h-full animate-[spin_35s_linear_infinite]">
                 <svg viewBox="0 0 100 100" className="w-full h-full">
                   <path
                     id="luxuryPageStampTextPath"

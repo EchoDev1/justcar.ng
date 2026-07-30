@@ -488,18 +488,18 @@ export default function HomePage() {
         <div className="hero-gradient-mesh absolute inset-0 opacity-40" />
         <div className="hero-grid absolute inset-0" />
 
-        {/* Top Right Big White Luxury Rotating Stamp Badge */}
-        <div className="absolute top-20 right-4 sm:right-8 md:right-16 z-30 group cursor-pointer">
-          <div className="relative w-32 h-32 sm:w-36 sm:h-36 rounded-full p-[2px] bg-gradient-to-tr from-white via-slate-200 to-white shadow-[0_0_30px_rgba(255,255,255,0.4)] group-hover:scale-105 transition-transform duration-500">
+        {/* Top Right Big White Luxury Rotating Stamp Badge (Visible on both mobile & desktop) */}
+        <div className="absolute top-14 sm:top-20 right-2 sm:right-6 lg:right-16 z-20 group cursor-pointer pointer-events-auto">
+          <div className="relative w-20 h-20 sm:w-28 sm:h-28 lg:w-36 lg:h-36 rounded-full p-[1.5px] sm:p-[2px] bg-gradient-to-tr from-white via-slate-200 to-white shadow-[0_0_20px_rgba(255,255,255,0.4)] group-hover:scale-105 transition-transform duration-500">
             {/* Glassmorphic Outer Badge Ring - White Theme */}
-            <div className="w-full h-full rounded-full bg-slate-950/90 backdrop-blur-2xl border-2 border-white/20 flex items-center justify-center relative overflow-hidden">
+            <div className="w-full h-full rounded-full bg-slate-950/90 backdrop-blur-2xl border border-white/20 sm:border-2 flex items-center justify-center relative overflow-hidden">
               
               {/* Dual Ring Inner Concentric Circle Guide */}
-              <div className="absolute inset-2.5 rounded-full border border-dashed border-white/30 pointer-events-none" />
-              <div className="absolute inset-5 rounded-full border border-white/20 pointer-events-none" />
+              <div className="absolute inset-1.5 sm:inset-2.5 rounded-full border border-dashed border-white/30 pointer-events-none" />
+              <div className="absolute inset-3 sm:inset-5 rounded-full border border-white/20 pointer-events-none" />
 
-              {/* Rotating Ring with White "WHEN LUXURY MEETS MOTION" Text */}
-              <div className="absolute inset-0 w-full h-full animate-[spin_22s_linear_infinite]">
+              {/* Smooth Slow Rotating Ring with White "WHEN LUXURY MEETS MOTION" Text */}
+              <div className="absolute inset-0 w-full h-full animate-[spin_35s_linear_infinite]">
                 <svg viewBox="0 0 100 100" className="w-full h-full">
                   <path
                     id="topRightWhiteStampTextPath"
@@ -514,9 +514,9 @@ export default function HomePage() {
                 </svg>
               </div>
 
-              {/* Center Ring with 3D Rotating White Car Icon */}
-              <div className="relative z-10 p-3.5 sm:p-4 rounded-full bg-white text-slate-950 shadow-2xl border-2 border-white ring-4 ring-white/20 animate-[spin_12s_linear_infinite]">
-                <CarIcon size={26} className="stroke-[2.5]" />
+              {/* Center Ring with Elegant Steady White Car Icon */}
+              <div className="relative z-10 p-2 sm:p-3 lg:p-4 rounded-full bg-white text-slate-950 shadow-2xl border border-white ring-2 sm:ring-4 ring-white/20">
+                <CarIcon size={16} className="sm:w-5 sm:h-5 lg:w-6 lg:h-6 stroke-[2.5]" />
               </div>
             </div>
           </div>
@@ -524,7 +524,7 @@ export default function HomePage() {
 
         {/* Main Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center" suppressHydrationWarning>
-          <div className="mx-auto flex flex-col items-center translate-x-6 md:translate-x-12" suppressHydrationWarning>
+          <div className="mx-auto flex flex-col items-center translate-x-0 md:translate-x-12" suppressHydrationWarning>
             {/* Main Headline - Animated */}
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-4 leading-tight">
               <span className="gradient-text-hero block mb-2">
