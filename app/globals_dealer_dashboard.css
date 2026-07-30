@@ -963,3 +963,13 @@
 .dealer-delay-4 {
   animation-delay: 0.4s;
 }
+
+/* Disable bouncing and floating animations for icons globally as requested */
+.animate-bounce,
+.icon-bounce,
+.icon-float,
+.floating-cta-button,
+.cta-floating-icon,
+.badgeBounce {
+  animation: none !important;
+}

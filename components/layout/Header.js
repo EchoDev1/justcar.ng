@@ -7,6 +7,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Car, Menu, X, Search, User, Heart, MessageCircle, LogOut, Settings } from 'lucide-react'
 import Button from '@/components/ui/Button'
 import { useAuth } from '@/contexts/AuthContext'
@@ -46,14 +47,32 @@ export default function Header() {
     <>
       <header className="header-modern">
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <Link href="/" className="flex items-center space-x-2 logo-link">
-              <Car className="text-accent-blue icon-animated" size={32} />
-              <span className="text-2xl font-bold text-white">
-                JustCars<span className="text-accent-blue">.ng</span>
-              </span>
-            </Link>
+          <div className="flex items-center justify-between h-20">
+            {/* Logo and Seal Container */}
+            <div className="flex flex-col items-center justify-center relative">
+              <Link href="/" className="flex items-center space-x-2 logo-link">
+                <Car className="text-accent-blue icon-animated" size={28} />
+                <span className="text-2xl font-bold text-white">
+                  JustCars<span className="text-accent-blue">.ng</span>
+                </span>
+              </Link>
+
+              {/* Header Luxury Seal Logo & Tagline */}
+              <div className="flex items-center gap-2 mt-1 -ml-2 md:-ml-3 group cursor-pointer">
+                <div className="relative p-[1px] rounded-full bg-gradient-to-r from-amber-300 via-yellow-500 to-amber-600 shadow-[0_0_10px_rgba(245,158,11,0.5)] group-hover:shadow-[0_0_15px_rgba(245,158,11,0.8)] transition-all duration-300">
+                  <Image 
+                    src="/luxury_motion_seal.jpg" 
+                    alt="When Luxury Meets Motion Seal" 
+                    width={22} 
+                    height={22} 
+                    className="rounded-full object-cover transform group-hover:rotate-12 transition-transform duration-500"
+                  />
+                </div>
+                <span className="text-[11px] font-extrabold tracking-widest uppercase bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-500 bg-clip-text text-transparent drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] font-sans whitespace-nowrap">
+                  &lt;- When Luxury Meets Motion -&gt;
+                </span>
+              </div>
+            </div>
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">

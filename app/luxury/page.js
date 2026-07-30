@@ -296,6 +296,40 @@ export default function LuxuryPortalPage() {
           </div>
         </div>
 
+        {/* Top Right Floating Gold Luxury Rotating Stamp Badge */}
+        <div className="absolute top-24 right-6 sm:right-10 md:right-20 z-50 group cursor-pointer pointer-events-auto">
+          <div className="relative w-32 h-32 sm:w-36 sm:h-36 rounded-full p-[2px] bg-gradient-to-tr from-amber-300 via-yellow-400 to-amber-600 shadow-[0_0_40px_rgba(245,158,11,0.7)] group-hover:scale-105 transition-transform duration-500">
+            {/* Glassmorphic Outer Badge Ring - Gold Theme */}
+            <div className="w-full h-full rounded-full bg-slate-950/90 backdrop-blur-2xl border-2 border-amber-400/50 flex items-center justify-center relative overflow-hidden">
+              
+              {/* Dual Ring Inner Concentric Circle Guide */}
+              <div className="absolute inset-2.5 rounded-full border border-dashed border-amber-400/40 pointer-events-none" />
+              <div className="absolute inset-5 rounded-full border border-amber-400/30 pointer-events-none" />
+
+              {/* Rotating Ring with Gold "WHEN LUXURY MEETS MOTION" Text */}
+              <div className="absolute inset-0 w-full h-full animate-[spin_22s_linear_infinite]">
+                <svg viewBox="0 0 100 100" className="w-full h-full">
+                  <path
+                    id="luxuryPageStampTextPath"
+                    d="M 50, 50 m -37, 0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0"
+                    fill="none"
+                  />
+                  <text className="text-[6.2px] font-black uppercase tracking-[1.8px] fill-amber-300">
+                    <textPath href="#luxuryPageStampTextPath">
+                      JUSTCARS.NG • WHEN LUXURY MEETS MOTION •
+                    </textPath>
+                  </text>
+                </svg>
+              </div>
+
+              {/* Center Ring with 3D Rotating Gold Crown Emblem */}
+              <div className="relative z-10 p-3.5 sm:p-4 rounded-full bg-gradient-to-br from-amber-400 via-yellow-500 to-amber-600 text-slate-950 shadow-2xl border-2 border-amber-300 ring-4 ring-amber-400/20">
+                <Crown size={26} className="stroke-[2.5]" />
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Main Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center py-20">
           {/* Animated Crown Icon */}

@@ -239,13 +239,10 @@ function BuyerAuthContent() {
   const imageUrl = primaryImage?.image_url || '/images/placeholder-car.jpg'
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 relative overflow-hidden">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute w-96 h-96 bg-white/10 rounded-full blur-3xl animate-float -top-48 -left-48"></div>
-        <div className="absolute w-96 h-96 bg-blue-400/10 rounded-full blur-3xl animate-float-delayed top-1/2 right-0"></div>
-        <div className="absolute w-96 h-96 bg-purple-400/10 rounded-full blur-3xl animate-float-slow bottom-0 left-1/3"></div>
-      </div>
+    <div className="min-h-screen bg-primary relative overflow-hidden">
+      {/* Background Animated Elements */}
+      <div className="hero-gradient-mesh absolute inset-0 opacity-40" />
+      <div className="hero-grid absolute inset-0 pointer-events-none" />
 
       {/* Content */}
       <div className="relative z-10 min-h-screen flex items-center justify-center px-4 py-12">

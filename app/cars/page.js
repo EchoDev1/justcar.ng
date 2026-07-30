@@ -14,8 +14,21 @@ import FilterSidebar from '@/components/cars/FilterSidebar'
 import SearchBar from '@/components/cars/SearchBar'
 import Loading from '@/components/ui/Loading'
 import Select from '@/components/ui/Select'
-import { Crown, X } from 'lucide-react'
-import { LUXURY_PRICE_THRESHOLD } from '@/lib/utils'
+import { Crown, X, ChevronRight, Volume2, Sparkles, Zap, Gauge, Play, Pause, Flame, Trophy } from 'lucide-react'
+import { LUXURY_PRICE_THRESHOLD, getBrandAbbreviation } from '@/lib/utils'
+import AnimatedCounter from '@/components/ui/AnimatedCounter'
+
+// Popular brands data - using centralized brand abbreviations
+const popularBrands = [
+  { name: 'Toyota', count: 342 },
+  { name: 'Honda', count: 218 },
+  { name: 'Mercedes-Benz', count: 156 },
+  { name: 'BMW', count: 124 },
+  { name: 'Lexus', count: 189 },
+  { name: 'Nissan', count: 203 },
+  { name: 'Audi', count: 98 },
+  { name: 'Ford', count: 167 }
+].map(brand => ({ ...brand, logo: getBrandAbbreviation(brand.name) }))
 
 function CarsPageContent() {
   const searchParams = useSearchParams()
@@ -81,8 +94,12 @@ function CarsPageContent() {
         )
       `, { count: 'exact' })
 
-    // Apply filters - use ilike for case-insensitive exact matching on text fields
-    if (filters.make) query = query.ilike('make', filters.make)
+    // Apply filters - use ilike for exact brand matching on make
+    if (filters.make) {
+      // Map brand aliases for accurate matching (e.g. Mercedes -> Mercedes-Benz)
+      const cleanMake = filters.make.trim()
+      query = query.ilike('make', `%${cleanMake}%`)
+    }
     if (filters.brandLetter) query = query.ilike('make', `${filters.brandLetter}%`)
     if (filters.minPrice) query = query.gte('price', parseFloat(filters.minPrice))
     if (filters.maxPrice) query = query.lte('price', parseFloat(filters.maxPrice))
@@ -245,68 +262,282 @@ function CarsPageContent() {
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE)
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          {isLuxuryMode ? (
-            <div className="flex items-center gap-4 mb-4">
-              <div className="flex items-center gap-3">
-                <Crown className="text-yellow-500" size={32} />
-                <h1 className="text-3xl font-bold text-gray-900">Luxury Collection</h1>
-              </div>
+    <div className="min-h-screen bg-gray-900 text-white">
+      {/* Sleek Brand Quick Selector Bar */}
+      <section className="py-8 bg-primary border-b border-white/10 relative overflow-hidden">
+        <div className="hero-gradient-mesh absolute inset-0 opacity-20 pointer-events-none" />
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold gradient-text-hero">
+                {isLuxuryMode ? 'Luxury Collection' : 'Browse Verified Vehicles'}
+              </h1>
+              <p className="text-muted text-sm mt-1">
+                {isLuxuryMode 
+                  ? 'Ultra-exclusive luxury inventory (₦150M+)' 
+                  : 'Filter by brand, model, price, or vehicle condition'}
+              </p>
+            </div>
+
+            {/* Exit Luxury mode indicator if active */}
+            {isLuxuryMode && (
               <Link
                 href="/cars"
-                className="flex items-center gap-1 px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded-full text-gray-600 transition-colors"
+                className="flex items-center gap-1.5 px-4 py-2 bg-amber-500/10 border border-amber-500/30 text-amber-300 hover:bg-amber-500/20 rounded-xl text-sm font-semibold transition-all"
               >
-                <X size={14} />
-                Exit Luxury Mode
+                <Crown size={16} />
+                <span>Exit Luxury Mode</span>
+                <X size={14} className="ml-1" />
               </Link>
-            </div>
-          ) : (
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">Browse Cars</h1>
-          )}
-
-          {/* Luxury Mode Banner */}
-          {isLuxuryMode && (
-            <div className="bg-gradient-to-r from-yellow-50 to-amber-50 border border-yellow-200 rounded-lg p-4 mb-6">
-              <div className="flex items-center gap-2 text-yellow-800">
-                <Crown size={20} />
-                <span className="font-medium">Viewing luxury vehicles only (starting from ₦150 Million)</span>
-              </div>
-              {filters.make && (
-                <p className="text-yellow-700 mt-1 text-sm">
-                  Filtered by brand: <span className="font-semibold">{filters.make}</span>
-                </p>
-              )}
-            </div>
-          )}
-
-          {/* Search Bar */}
-          <div className="mb-6">
-            <SearchBar onSearch={handleSearch} initialValue={searchTerm} />
+            )}
           </div>
 
-          {/* Results Count and Sort */}
-          <div className="flex items-center justify-between">
-            <p className="text-gray-600">
-              {loading ? 'Loading...' : `${totalCount} car${totalCount !== 1 ? 's' : ''} found`}
-            </p>
-            <div className="w-64">
-              <Select
-                value={sortBy}
-                onChange={(e) => {
-                  setSortBy(e.target.value)
-                  setCurrentPage(1)
-                }}
-                options={[
-                  { value: 'created_at_desc', label: 'Recently Added' },
-                  { value: 'price_asc', label: 'Price: Low to High' },
-                  { value: 'price_desc', label: 'Price: High to Low' },
-                  { value: 'year_desc', label: 'Year: Newest First' },
-                  { value: 'year_asc', label: 'Year: Oldest First' }
-                ]}
-              />
+          {/* Quick Brand Badges */}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 pt-2">
+            <span className="text-xs uppercase tracking-wider text-accent-blue font-bold whitespace-nowrap flex items-center gap-1.5">
+              Top Brands:
+            </span>
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+              <button
+                onClick={() => handleFilterChange({ ...filters, make: '' })}
+                className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap ${
+                  !filters.make 
+                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/25 ring-2 ring-blue-400/30' 
+                    : 'bg-white/5 border border-white/10 text-white/70 hover:bg-white/10 hover:text-white'
+                }`}
+              >
+                All Brands
+              </button>
+              {popularBrands.map((brand) => {
+                const isSelected = filters.make.toLowerCase() === brand.name.toLowerCase()
+                return (
+                  <button 
+                    key={brand.name} 
+                    onClick={() => handleFilterChange({ ...filters, make: brand.name })}
+                    className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-2 whitespace-nowrap ${
+                      isSelected 
+                        ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/25 ring-2 ring-blue-400/30' 
+                        : 'bg-white/5 border border-white/10 text-white/70 hover:bg-white/10 hover:text-white'
+                    }`}
+                  >
+                    <span>{brand.name}</span>
+                    {isSelected && <X size={12} className="ml-1 opacity-80" />}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* VIP Car Lovers Interactive Feature: Virtual Engine Sound Experience */}
+        <div className="mb-8 p-6 md:p-8 rounded-3xl bg-gradient-to-r from-slate-900/90 via-amber-950/30 to-slate-900/90 border border-amber-500/30 backdrop-blur-2xl shadow-[0_10px_30px_rgba(0,0,0,0.5)] relative overflow-hidden group">
+          {/* Subtle ambient light glow background */}
+          <div className="absolute -top-24 -right-24 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-amber-500/20 transition-all duration-700" />
+          
+          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 relative z-10">
+            {/* Header info */}
+            <div className="flex items-center gap-4">
+              <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-400 via-yellow-500 to-amber-600 text-black shadow-lg shadow-amber-500/25 ring-2 ring-amber-400/30">
+                <Gauge size={32} />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-xs font-extrabold uppercase tracking-widest bg-gradient-to-r from-amber-200 to-amber-500 bg-clip-text text-transparent flex items-center gap-1.5 font-mono">
+                    <Flame size={14} className="text-amber-400" /> VIP Sound Studio
+                  </span>
+                  <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 font-semibold tracking-wider uppercase">
+                    Interactive
+                  </span>
+                </div>
+                <h3 className="text-xl font-black text-white tracking-wide">
+                  Virtual Exhaust Sound Rev Simulator
+                </h3>
+                <p className="text-xs text-white/60 mt-0.5">
+                  Experience raw horsepower — select an engine configuration below to hear the exhaust roar.
+                </p>
+              </div>
+            </div>            {/* Interactive Engine Sound Buttons - Filter & Sound Generator */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full lg:w-auto">
+              {[
+                { 
+                  name: 'V8 Twin-Turbo', 
+                  tag: 'Pure Muscle', 
+                  filterTerm: 'V8', 
+                  gradient: 'from-red-600/90 to-amber-600/90 hover:from-red-500 hover:to-amber-500 border-red-500/40',
+                  playAudio: () => {
+                    const ctx = new (window.AudioContext || window.webkitAudioContext)()
+                    // Base rumble
+                    const osc1 = ctx.createOscillator()
+                    const osc2 = ctx.createOscillator()
+                    const gain = ctx.createGain()
+                    osc1.type = 'sawtooth'
+                    osc2.type = 'square'
+                    osc1.frequency.setValueAtTime(80, ctx.currentTime)
+                    osc2.frequency.setValueAtTime(160, ctx.currentTime)
+                    
+                    // Rev up curve
+                    osc1.frequency.exponentialRampToValueAtTime(320, ctx.currentTime + 0.5)
+                    osc2.frequency.exponentialRampToValueAtTime(640, ctx.currentTime + 0.5)
+                    osc1.frequency.exponentialRampToValueAtTime(90, ctx.currentTime + 1.4)
+                    osc2.frequency.exponentialRampToValueAtTime(180, ctx.currentTime + 1.4)
+                    
+                    gain.gain.setValueAtTime(0.3, ctx.currentTime)
+                    gain.gain.linearRampToValueAtTime(0.6, ctx.currentTime + 0.5)
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.4)
+                    
+                    osc1.connect(gain)
+                    osc2.connect(gain)
+                    gain.connect(ctx.destination)
+                    osc1.start()
+                    osc2.start()
+                    osc1.stop(ctx.currentTime + 1.4)
+                    osc2.stop(ctx.currentTime + 1.4)
+                  }
+                },
+                { 
+                  name: 'V12 Atmospheric', 
+                  tag: 'Supercar Roar', 
+                  filterTerm: 'V12', 
+                  gradient: 'from-amber-500/90 to-yellow-600/90 hover:from-amber-400 hover:to-yellow-500 border-amber-400/40',
+                  playAudio: () => {
+                    const ctx = new (window.AudioContext || window.webkitAudioContext)()
+                    const osc1 = ctx.createOscillator()
+                    const osc2 = ctx.createOscillator()
+                    const gain = ctx.createGain()
+                    osc1.type = 'sawtooth'
+                    osc2.type = 'triangle'
+                    osc1.frequency.setValueAtTime(120, ctx.currentTime)
+                    osc2.frequency.setValueAtTime(240, ctx.currentTime)
+                    
+                    osc1.frequency.exponentialRampToValueAtTime(550, ctx.currentTime + 0.6)
+                    osc2.frequency.exponentialRampToValueAtTime(1100, ctx.currentTime + 0.6)
+                    osc1.frequency.exponentialRampToValueAtTime(130, ctx.currentTime + 1.6)
+                    osc2.frequency.exponentialRampToValueAtTime(260, ctx.currentTime + 1.6)
+                    
+                    gain.gain.setValueAtTime(0.35, ctx.currentTime)
+                    gain.gain.linearRampToValueAtTime(0.7, ctx.currentTime + 0.6)
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.6)
+                    
+                    osc1.connect(gain)
+                    osc2.connect(gain)
+                    gain.connect(ctx.destination)
+                    osc1.start()
+                    osc2.start()
+                    osc1.stop(ctx.currentTime + 1.6)
+                    osc2.stop(ctx.currentTime + 1.6)
+                  }
+                },
+                { 
+                  name: 'Inline 6 Turbo', 
+                  tag: 'Precision Tuned', 
+                  filterTerm: 'Turbo', 
+                  gradient: 'from-blue-600/90 to-cyan-600/90 hover:from-blue-500 hover:to-cyan-500 border-blue-400/40',
+                  playAudio: () => {
+                    const ctx = new (window.AudioContext || window.webkitAudioContext)()
+                    const osc = ctx.createOscillator()
+                    const gain = ctx.createGain()
+                    osc.type = 'sawtooth'
+                    osc.frequency.setValueAtTime(100, ctx.currentTime)
+                    osc.frequency.exponentialRampToValueAtTime(380, ctx.currentTime + 0.45)
+                    osc.frequency.exponentialRampToValueAtTime(110, ctx.currentTime + 1.3)
+                    
+                    gain.gain.setValueAtTime(0.3, ctx.currentTime)
+                    gain.gain.linearRampToValueAtTime(0.5, ctx.currentTime + 0.45)
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.3)
+                    
+                    osc.connect(gain)
+                    gain.connect(ctx.destination)
+                    osc.start()
+                    osc.stop(ctx.currentTime + 1.3)
+                  }
+                },
+                { 
+                  name: 'EV Supercharge', 
+                  tag: 'Futuristic Hum', 
+                  filterTerm: 'Electric', 
+                  gradient: 'from-cyan-500/90 to-emerald-600/90 hover:from-cyan-400 hover:to-emerald-500 border-cyan-400/40',
+                  playAudio: () => {
+                    const ctx = new (window.AudioContext || window.webkitAudioContext)()
+                    const osc = ctx.createOscillator()
+                    const gain = ctx.createGain()
+                    osc.type = 'sine'
+                    osc.frequency.setValueAtTime(250, ctx.currentTime)
+                    osc.frequency.exponentialRampToValueAtTime(950, ctx.currentTime + 0.7)
+                    osc.frequency.exponentialRampToValueAtTime(300, ctx.currentTime + 1.5)
+                    
+                    gain.gain.setValueAtTime(0.2, ctx.currentTime)
+                    gain.gain.linearRampToValueAtTime(0.4, ctx.currentTime + 0.7)
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.5)
+                    
+                    osc.connect(gain)
+                    gain.connect(ctx.destination)
+                    osc.start()
+                    osc.stop(ctx.currentTime + 1.5)
+                  }
+                }
+              ].map((engine) => (
+                <button
+                  key={engine.name}
+                  onClick={() => {
+                    // Play realistic synthesized audio sound
+                    try { engine.playAudio() } catch (e) {}
+                    
+                    // Instantly filter cars grid by engine category & scroll to results
+                    handleSearch(engine.filterTerm)
+                    const gridEl = document.querySelector('.lg\\:grid')
+                    if (gridEl) {
+                      gridEl.scrollIntoView({ behavior: 'smooth' })
+                    }
+                  }}
+                  className={`flex flex-col items-center justify-center p-3.5 rounded-2xl bg-gradient-to-b ${engine.gradient} border text-white shadow-lg hover:scale-105 active:scale-95 transition-all duration-300 text-center cursor-pointer group/btn`}
+                >
+                  <div className="flex items-center gap-1.5 mb-1 text-white font-bold text-xs">
+                    <Volume2 size={15} className="group-hover/btn:animate-ping" />
+                    <span>{engine.name}</span>
+                  </div>
+                  <span className="text-[10px] text-white/90 font-semibold tracking-tight">
+                    {engine.tag}
+                  </span>
+                  <span className="mt-1 text-[9px] text-amber-200 uppercase font-bold tracking-wider">
+                    Listen & View Cars →
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Unified Search & Control Bar */}
+        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-4 mb-8 shadow-xl">
+          <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+            <div className="w-full md:flex-1">
+              <SearchBar onSearch={handleSearch} initialValue={searchTerm} />
+            </div>
+            
+            <div className="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end">
+              <p className="text-sm text-muted whitespace-nowrap">
+                {loading ? 'Searching...' : `${totalCount} vehicle${totalCount !== 1 ? 's' : ''}`}
+              </p>
+
+              <div className="w-48">
+                <Select
+                  value={sortBy}
+                  onChange={(e) => {
+                    setSortBy(e.target.value)
+                    setCurrentPage(1)
+                  }}
+                  options={[
+                    { value: 'created_at_desc', label: 'Recently Added' },
+                    { value: 'price_asc', label: 'Price: Low to High' },
+                    { value: 'price_desc', label: 'Price: High to Low' },
+                    { value: 'year_desc', label: 'Year: Newest First' },
+                    { value: 'year_asc', label: 'Year: Oldest First' }
+                  ]}
+                />
+              </div>
             </div>
           </div>
         </div>

@@ -59,35 +59,39 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center px-4">
-      <div className="max-w-md w-full">
+    <div className="min-h-screen bg-primary relative overflow-hidden flex items-center justify-center px-4 py-12">
+      {/* Background Animated Grids & Gradients matching home page */}
+      <div className="hero-gradient-mesh absolute inset-0 opacity-40" />
+      <div className="hero-grid absolute inset-0 pointer-events-none" />
+
+      <div className="relative z-10 max-w-md w-full">
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center space-x-2 mb-4">
-            <Car className="text-blue-600" size={48} />
-            <span className="text-4xl font-bold text-gray-900">
-              JustCars<span className="text-blue-600">.ng</span>
+            <Car className="text-accent-blue icon-animated" size={44} />
+            <span className="text-4xl font-bold text-white">
+              JustCars<span className="text-accent-blue">.ng</span>
             </span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Admin Login</h1>
-          <p className="text-gray-600 mt-2">Sign in to manage your car marketplace</p>
+          <h1 className="text-2xl font-bold text-white">Admin Login</h1>
+          <p className="text-muted mt-2">Sign in to manage your car marketplace</p>
         </div>
 
         {/* Login Form */}
-        <div className="bg-white rounded-lg shadow-xl p-8">
+        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-8">
           <form onSubmit={handleLogin} className="space-y-6">
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+              <div className="bg-red-500/10 border border-red-500/30 text-red-300 px-4 py-3 rounded-xl text-sm">
                 {error}
               </div>
             )}
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-white/80 mb-2">
                 Email Address
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                <Mail className="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-accent-blue" size={20} />
                 <input
                   type="email"
                   value={email}
@@ -95,18 +99,17 @@ export default function LoginPage() {
                   placeholder="admin@justcars.ng"
                   required
                   autoComplete="email"
-                  style={{ color: '#111827', backgroundColor: '#ffffff' }}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-400"
+                  className="w-full pl-11 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-accent-blue text-white placeholder-gray-400 transition-colors"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-white/80 mb-2">
                 Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                <Lock className="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-accent-blue" size={20} />
                 <input
                   type="password"
                   value={password}
@@ -114,26 +117,24 @@ export default function LoginPage() {
                   placeholder="Enter your password"
                   required
                   autoComplete="current-password"
-                  style={{ color: '#111827', backgroundColor: '#ffffff' }}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-400"
+                  className="w-full pl-11 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-accent-blue text-white placeholder-gray-400 transition-colors"
                 />
               </div>
             </div>
 
-            <Button
+            <button
               type="submit"
-              variant="primary"
-              className="w-full"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-blue-500/25"
               disabled={loading}
             >
               {loading ? 'Signing in...' : 'Sign In'}
-            </Button>
+            </button>
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted">
               Forgot your password?{' '}
-              <a href="#" className="text-blue-600 hover:text-blue-700 font-medium">
+              <a href="#" className="text-accent-blue hover:underline font-medium">
                 Reset it here
               </a>
             </p>
@@ -142,7 +143,7 @@ export default function LoginPage() {
 
         {/* Back to Home */}
         <div className="text-center mt-6">
-          <a href="/" className="text-gray-600 hover:text-gray-900">
+          <a href="/" className="text-white/60 hover:text-white transition-colors">
             ← Back to Homepage
           </a>
         </div>

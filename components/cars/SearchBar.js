@@ -23,13 +23,13 @@ export default function SearchBar({ onSearch, initialValue = '' }) {
 
   return (
     <div className="relative">
-      <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+      <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-accent-blue" size={20} />
       <input
         type="text"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
-        placeholder="Search by make, model, or location..."
-        className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900"
+        placeholder="Search by brand, model, or location..."
+        className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-accent-blue text-white placeholder-gray-400 transition-colors"
       />
     </div>
   )

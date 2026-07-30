@@ -6098,9 +6098,6 @@ input[type="search"]:focus {
   0%, 100% {
     transform: translateY(0px) rotate(0deg);
   }
-  50% {
-    transform: translateY(-15px) rotate(5deg);
-  }
 }
 
 .luxury-crown-pulse {
@@ -8129,4 +8126,14 @@ input[type="search"]:focus {
 
 .dealer-delay-4 {
   animation-delay: 0.4s;
+}
+
+/* Disable bouncing and floating animations for icons globally as requested */
+.animate-bounce,
+.icon-bounce,
+.icon-float,
+.floating-cta-button,
+.cta-floating-icon,
+.badgeBounce {
+  animation: none !important;
 }

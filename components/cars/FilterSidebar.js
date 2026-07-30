@@ -20,32 +20,38 @@ export default function FilterSidebar({ filters, onFilterChange, onResetFilters 
 
   const FilterContent = () => (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold text-gray-900">Filters</h2>
-        <Button
-          variant="ghost"
-          size="sm"
+      <div className="flex items-center justify-between pb-3 border-b border-white/10">
+        <h2 className="text-xl font-bold text-white flex items-center gap-2">
+          <SlidersHorizontal size={20} className="text-accent-blue" />
+          Filter Inventory
+        </h2>
+        <button
+          type="button"
           onClick={onResetFilters}
-          className="text-blue-600"
+          className="text-xs text-accent-blue hover:underline font-semibold"
         >
           Reset All
-        </Button>
+        </button>
       </div>
 
       {/* Make */}
-      <Select
-        label="Make"
-        name="make"
-        value={filters.make || ''}
-        onChange={(e) => handleChange('make', e.target.value)}
-        options={CAR_MAKES}
-        placeholder="All Makes"
-      />
+      <div>
+        <label className="block text-sm font-medium text-white/80 mb-2">
+          Make (Brand)
+        </label>
+        <Select
+          name="make"
+          value={filters.make || ''}
+          onChange={(e) => handleChange('make', e.target.value)}
+          options={CAR_MAKES}
+          placeholder="All Makes"
+        />
+      </div>
 
       {/* Price Range */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Price Range
+        <label className="block text-sm font-medium text-white/80 mb-2">
+          Price Range (₦)
         </label>
         <div className="grid grid-cols-2 gap-2">
           <input
@@ -53,23 +59,23 @@ export default function FilterSidebar({ filters, onFilterChange, onResetFilters 
             name="minPrice"
             value={filters.minPrice || ''}
             onChange={(e) => handleChange('minPrice', e.target.value)}
-            placeholder="Min"
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Min Price"
+            className="px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-accent-blue text-white placeholder-gray-400 text-sm"
           />
           <input
             type="number"
             name="maxPrice"
             value={filters.maxPrice || ''}
             onChange={(e) => handleChange('maxPrice', e.target.value)}
-            placeholder="Max"
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Max Price"
+            className="px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-accent-blue text-white placeholder-gray-400 text-sm"
           />
         </div>
       </div>
 
       {/* Year Range */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-white/80 mb-2">
           Year Range
         </label>
         <div className="grid grid-cols-2 gap-2">
@@ -79,7 +85,7 @@ export default function FilterSidebar({ filters, onFilterChange, onResetFilters 
             value={filters.minYear || ''}
             onChange={(e) => handleChange('minYear', e.target.value)}
             placeholder="Min Year"
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-accent-blue text-white placeholder-gray-400 text-sm"
           />
           <input
             type="number"
@@ -87,7 +93,7 @@ export default function FilterSidebar({ filters, onFilterChange, onResetFilters 
             value={filters.maxYear || ''}
             onChange={(e) => handleChange('maxYear', e.target.value)}
             placeholder="Max Year"
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-accent-blue text-white placeholder-gray-400 text-sm"
           />
         </div>
       </div>
@@ -149,9 +155,9 @@ export default function FilterSidebar({ filters, onFilterChange, onResetFilters 
           id="verifiedOnly"
           checked={filters.verifiedOnly || false}
           onChange={(e) => handleChange('verifiedOnly', e.target.checked)}
-          className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+          className="w-4 h-4 text-blue-600 border-white/20 rounded focus:ring-blue-500 bg-white/10"
         />
-        <label htmlFor="verifiedOnly" className="ml-2 text-sm font-medium text-gray-700">
+        <label htmlFor="verifiedOnly" className="ml-2 text-sm font-medium text-white/90">
           Verified Cars Only
         </label>
       </div>
@@ -162,44 +168,45 @@ export default function FilterSidebar({ filters, onFilterChange, onResetFilters 
     <>
       {/* Mobile Filter Button */}
       <div className="lg:hidden mb-4">
-        <Button
-          variant="outline"
+        <button
+          type="button"
           onClick={() => setMobileFiltersOpen(true)}
-          className="w-full flex items-center justify-center gap-2"
+          className="w-full flex items-center justify-center gap-2 bg-white/5 border border-white/10 text-white py-3 rounded-xl font-semibold backdrop-blur-xl hover:bg-white/10 transition-colors"
         >
-          <SlidersHorizontal size={20} />
-          Filters
-        </Button>
+          <SlidersHorizontal size={20} className="text-accent-blue" />
+          Filter Vehicles
+        </button>
       </div>
 
       {/* Desktop Sidebar */}
-      <div className="hidden lg:block">
+      <div className="hidden lg:block bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-xl">
         <FilterContent />
       </div>
 
-      {/* Mobile Sidebar */}
+      {/* Mobile Sidebar Overlay */}
       {mobileFiltersOpen && (
-        <div className="lg:hidden fixed inset-0 z-50 bg-white overflow-y-auto">
-          <div className="p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-gray-900">Filters</h2>
-              <button
-                onClick={() => setMobileFiltersOpen(false)}
-                className="text-gray-600 hover:text-gray-900"
-              >
-                <X size={24} />
-              </button>
-            </div>
-            <FilterContent />
-            <div className="mt-6">
-              <Button
-                variant="primary"
-                onClick={() => setMobileFiltersOpen(false)}
-                className="w-full"
-              >
-                Apply Filters
-              </Button>
-            </div>
+        <div className="lg:hidden fixed inset-0 z-50 bg-primary/95 backdrop-blur-2xl overflow-y-auto p-6 text-white">
+          <div className="flex items-center justify-between mb-6 pb-3 border-b border-white/10">
+            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+              <SlidersHorizontal size={20} className="text-accent-blue" />
+              Filter Inventory
+            </h2>
+            <button
+              onClick={() => setMobileFiltersOpen(false)}
+              className="text-white/70 hover:text-white"
+            >
+              <X size={24} />
+            </button>
+          </div>
+          <FilterContent />
+          <div className="mt-8">
+            <button
+              type="button"
+              onClick={() => setMobileFiltersOpen(false)}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl shadow-lg transition-colors"
+            >
+              Apply Filters
+            </button>
           </div>
         </div>
       )}

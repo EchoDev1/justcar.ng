@@ -7,6 +7,7 @@
 
 import { useState, useEffect, useMemo, memo } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { Search, Car as CarIcon, CheckCircle, Shield, Clock, TrendingUp, Award, Sparkles, ChevronRight, Star, Camera, Clipboard, Tag, ArrowRight, Zap, Filter, Eye, Phone, Send, ChevronUp } from 'lucide-react'
@@ -68,30 +69,7 @@ export default function HomePage() {
     router.push(`/cars?${params.toString()}`)
   }
 
-  // Fixed particles to prevent hydration mismatch
-  // Using fixed values instead of Math.random() to ensure server and client match
-  const particles = useMemo(() => [
-    { id: 0, left: '15%', top: '20%', delay: '0s', duration: '20s' },
-    { id: 1, left: '85%', top: '40%', delay: '2s', duration: '18s' },
-    { id: 2, left: '45%', top: '10%', delay: '4s', duration: '22s' },
-    { id: 3, left: '70%', top: '70%', delay: '1s', duration: '19s' },
-    { id: 4, left: '25%', top: '85%', delay: '3s', duration: '21s' },
-    { id: 5, left: '90%', top: '25%', delay: '5s', duration: '17s' },
-    { id: 6, left: '10%', top: '60%', delay: '2.5s', duration: '23s' },
-    { id: 7, left: '60%', top: '15%', delay: '4.5s', duration: '18.5s' },
-    { id: 8, left: '35%', top: '90%', delay: '1.5s', duration: '20.5s' },
-    { id: 9, left: '80%', top: '50%', delay: '3.5s', duration: '19.5s' },
-    { id: 10, left: '50%', top: '30%', delay: '0.5s', duration: '21.5s' },
-    { id: 11, left: '20%', top: '75%', delay: '2.8s', duration: '22.5s' },
-    { id: 12, left: '75%', top: '5%', delay: '4.2s', duration: '17.8s' },
-    { id: 13, left: '40%', top: '65%', delay: '1.8s', duration: '19.8s' },
-    { id: 14, left: '95%', top: '35%', delay: '3.2s', duration: '20.8s' },
-    { id: 15, left: '5%', top: '45%', delay: '0.8s', duration: '18.2s' },
-    { id: 16, left: '65%', top: '80%', delay: '4.8s', duration: '21.2s' },
-    { id: 17, left: '30%', top: '55%', delay: '2.2s', duration: '23.2s' },
-    { id: 18, left: '55%', top: '95%', delay: '1.2s', duration: '16.5s' },
-    { id: 19, left: '88%', top: '12%', delay: '3.8s', duration: '24s' }
-  ], [])
+
 
   // Handle scroll for Back to Top button
   useEffect(() => {
@@ -427,18 +405,6 @@ export default function HomePage() {
     }
   ]
 
-  // Popular brands data - using centralized brand abbreviations
-  const popularBrands = [
-    { name: 'Toyota', count: 342 },
-    { name: 'Honda', count: 218 },
-    { name: 'Mercedes-Benz', count: 156 },
-    { name: 'BMW', count: 124 },
-    { name: 'Lexus', count: 189 },
-    { name: 'Nissan', count: 203 },
-    { name: 'Audi', count: 98 },
-    { name: 'Ford', count: 167 }
-  ].map(brand => ({ ...brand, logo: getBrandAbbreviation(brand.name) }))
-
 
   // Format price helper
   const formatPrice = (price) => {
@@ -517,37 +483,83 @@ export default function HomePage() {
       <PaymentWarning />
 
       {/* Futuristic Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-primary">
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-primary pt-16">
         {/* Animated Background Elements */}
         <div className="hero-gradient-mesh absolute inset-0 opacity-40" />
         <div className="hero-grid absolute inset-0" />
 
-        {/* Particle System */}
-        <div className="particle-system">
-          {particles.map((particle) => (
-            <div
-              key={particle.id}
-              className="particle-orb"
-              style={{
-                left: particle.left,
-                top: particle.top,
-                animationDelay: particle.delay,
-                animationDuration: particle.duration
-              }}
-            />
-          ))}
+        {/* Top Right Big White Luxury Rotating Stamp Badge */}
+        <div className="absolute top-20 right-4 sm:right-8 md:right-16 z-30 group cursor-pointer">
+          <div className="relative w-32 h-32 sm:w-36 sm:h-36 rounded-full p-[2px] bg-gradient-to-tr from-white via-slate-200 to-white shadow-[0_0_30px_rgba(255,255,255,0.4)] group-hover:scale-105 transition-transform duration-500">
+            {/* Glassmorphic Outer Badge Ring - White Theme */}
+            <div className="w-full h-full rounded-full bg-slate-950/90 backdrop-blur-2xl border-2 border-white/20 flex items-center justify-center relative overflow-hidden">
+              
+              {/* Dual Ring Inner Concentric Circle Guide */}
+              <div className="absolute inset-2.5 rounded-full border border-dashed border-white/30 pointer-events-none" />
+              <div className="absolute inset-5 rounded-full border border-white/20 pointer-events-none" />
+
+              {/* Rotating Ring with White "WHEN LUXURY MEETS MOTION" Text */}
+              <div className="absolute inset-0 w-full h-full animate-[spin_22s_linear_infinite]">
+                <svg viewBox="0 0 100 100" className="w-full h-full">
+                  <path
+                    id="topRightWhiteStampTextPath"
+                    d="M 50, 50 m -37, 0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0"
+                    fill="none"
+                  />
+                  <text className="text-[6.2px] font-black uppercase tracking-[1.8px] fill-white">
+                    <textPath href="#topRightWhiteStampTextPath">
+                      JUSTCARS.NG • WHEN LUXURY MEETS MOTION •
+                    </textPath>
+                  </text>
+                </svg>
+              </div>
+
+              {/* Center Ring with 3D Rotating White Car Icon */}
+              <div className="relative z-10 p-3.5 sm:p-4 rounded-full bg-white text-slate-950 shadow-2xl border-2 border-white ring-4 ring-white/20 animate-[spin_12s_linear_infinite]">
+                <CarIcon size={26} className="stroke-[2.5]" />
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Main Content */}
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-          <div className="text-center">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center" suppressHydrationWarning>
+          <div className="mx-auto flex flex-col items-center translate-x-6 md:translate-x-12" suppressHydrationWarning>
             {/* Main Headline - Animated */}
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 text-reveal">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-4 leading-tight">
               <span className="gradient-text-hero block mb-2">
-                Discover Your
+                Discover Your Dream
               </span>
-              <span className="gradient-text-hero">
-                Dream Car
+              <span className="gradient-text-hero block mb-4">
+                Car
+              </span>
+              <span className="inline-flex items-center justify-center gap-3 text-xl md:text-2xl lg:text-3xl font-semibold text-white/70 tracking-wide mt-1">
+                <span>with JustCars.ng</span>
+
+                {/* Inline Small Rotating Stamp Badge */}
+                <div className="inline-block align-middle group cursor-pointer ml-1">
+                  <div className="relative w-14 h-14 rounded-full p-[1.5px] bg-gradient-to-tr from-amber-300 via-yellow-500 to-amber-600 shadow-[0_0_15px_rgba(245,158,11,0.5)] group-hover:scale-110 transition-transform duration-300">
+                    <div className="w-full h-full rounded-full bg-slate-950/80 backdrop-blur-xl border border-white/10 flex items-center justify-center relative overflow-hidden">
+                      <div className="absolute inset-0 w-full h-full animate-[spin_18s_linear_infinite]">
+                        <svg viewBox="0 0 100 100" className="w-full h-full">
+                          <path
+                            id="inlineSmallBadgeTextPath"
+                            d="M 50, 50 m -37, 0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0"
+                            fill="none"
+                          />
+                          <text className="text-[7.5px] font-bold uppercase tracking-[2.2px] fill-amber-300">
+                            <textPath href="#inlineSmallBadgeTextPath">
+                              JUSTCARS.NG • VERIFIED • AUTHENTIC •
+                            </textPath>
+                          </text>
+                        </svg>
+                      </div>
+                      <div className="relative z-10 p-1.5 rounded-full bg-gradient-to-br from-amber-400 to-yellow-600 text-black shadow-md">
+                        <CheckCircle size={12} className="stroke-[2.5]" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </span>
             </h1>
 
@@ -597,45 +609,13 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                {/* Popular Makes */}
-                <div>
-                  <p className="text-sm text-muted mb-2 uppercase tracking-wider">Popular Makes</p>
-                  <div className="flex flex-wrap gap-3 justify-center">
-                    {popularMakes.map((make) => (
-                      <button
-                        key={make.value}
-                        className={`filter-pill ${activeFilter === make.value ? 'active' : ''}`}
-                        onClick={() => handleFilterClick(make.value)}
-                      >
-                        <CarIcon size={16} />
-                        {make.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
 
-                {/* Body Types */}
-                <div>
-                  <p className="text-sm text-muted mb-2 uppercase tracking-wider">Body Type</p>
-                  <div className="flex flex-wrap gap-3 justify-center">
-                    {bodyTypes.map((type) => (
-                      <button
-                        key={type.value}
-                        className={`filter-pill ${activeFilter === type.value ? 'active' : ''}`}
-                        onClick={() => handleFilterClick(type.value)}
-                      >
-                        <Sparkles size={16} />
-                        {type.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
               </div>
             </div>
 
             {/* Trust Indicators with Animated Counters */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-12 text-reveal" style={{ animationDelay: '0.9s' }}>
-              <div className="trust-card">
+              <div className="trust-card text-center flex flex-col items-center justify-center relative overflow-hidden">
                 <div className="icon-float mb-3">
                   <CheckCircle className="text-accent-green mx-auto" size={40} />
                 </div>
@@ -645,7 +625,7 @@ export default function HomePage() {
                 <p className="text-muted text-sm">Verified Cars</p>
               </div>
 
-              <div className="trust-card">
+              <div className="trust-card text-center flex flex-col items-center justify-center relative overflow-hidden">
                 <div className="icon-float mb-3" style={{ animationDelay: '0.5s' }}>
                   <Award className="text-accent-blue mx-auto" size={40} />
                 </div>
@@ -655,7 +635,7 @@ export default function HomePage() {
                 <p className="text-muted text-sm">Customer Satisfaction</p>
               </div>
 
-              <div className="trust-card">
+              <div className="trust-card text-center flex flex-col items-center justify-center relative overflow-hidden">
                 <div className="icon-float mb-3" style={{ animationDelay: '1s' }}>
                   <Clock className="text-secondary mx-auto" size={40} />
                 </div>
@@ -666,31 +646,23 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* 3D CTA Button */}
-            <div className="text-reveal" style={{ animationDelay: '1.2s' }}>
-              <Link href="/cars">
-                <button className="cta-button-3d pulse-shadow inline-flex items-center gap-3">
-                  Explore Cars
-                  <ChevronRight size={24} />
-                </button>
-              </Link>
-            </div>
+
           </div>
         </div>
 
         {/* Scroll Indicator */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 animate-bounce">
-          <div className="flex flex-col items-center gap-2 text-accent-blue">
-            <p className="text-sm uppercase tracking-wider font-semibold">Scroll Down</p>
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-            </svg>
-          </div>
-        </div>
+        <button onClick={() => document.getElementById('features-section')?.scrollIntoView({ behavior: 'smooth' })} className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 cursor-pointer group p-4 rounded-xl hover:bg-white/5 transition-all" aria-label="Scroll to features">
+  <div className="flex flex-col items-center gap-2 text-accent-blue group-hover:text-white transition-colors">
+    <p className="text-lg uppercase tracking-wider font-bold">Scroll Down</p>
+    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+    </svg>
+  </div>
+</button>
       </section>
 
       {/* Features Section - Glassmorphic */}
-      <section className="py-20 relative overflow-hidden bg-primary">
+      <section id="features-section" className="py-20 relative overflow-hidden bg-primary">
         <div className="hero-gradient-mesh absolute inset-0 opacity-20" />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -943,70 +915,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Popular Makes - Brand Logos */}
-      <section className="py-24 relative overflow-hidden bg-primary">
-        <div className="hero-gradient-mesh absolute inset-0 opacity-20" />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-6xl font-bold mb-4 gradient-text-hero">
-              Browse by Brand
-            </h2>
-            <p className="text-muted text-lg max-w-2xl mx-auto mb-8">
-              Explore premium vehicles from the world's most trusted automotive manufacturers
-            </p>
-
-            {/* Alphabet Filter */}
-            <div className="flex flex-wrap justify-center gap-2 mb-8">
-              {'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map((letter) => (
-                <Link key={letter} href={`/cars?brandLetter=${letter}`}>
-                  <button className="w-10 h-10 rounded-lg bg-gray-800/50 border border-accent-blue/30 text-white font-semibold hover:bg-accent-blue hover:border-accent-blue transition-all duration-300 hover:scale-110">
-                    {letter}
-                  </button>
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          {/* Brand Logo Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
-            {popularBrands.map((brand, index) => (
-              <Link key={brand.name} href={`/cars?make=${brand.name}`}>
-                <div
-                  className="brand-logo-container text-reveal"
-                  style={{ animationDelay: `${index * 0.1}s` }}
-                >
-                  {/* Circular Container */}
-                  <div className="brand-circle">
-                    {/* Brand Logo Placeholder */}
-                    <span className="brand-logo-letter">{brand.logo}</span>
-                  </div>
-
-                  {/* Brand Name (appears on hover) */}
-                  <div className="brand-name-label">
-                    {brand.name}
-                  </div>
-
-                  {/* Car Count Badge (appears on hover) */}
-                  <div className="brand-count-badge">
-                    <AnimatedCounter end={brand.count} suffix=" cars" />
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-
-          {/* View All Button */}
-          <div className="text-center">
-            <Link href="/cars">
-              <button className="view-all-button">
-                View All Brands
-                <ChevronRight size={20} />
-              </button>
-            </Link>
-          </div>
-        </div>
-      </section>
 
       {/* Just Arrived Section - New Functional Component */}
       <JustArrivedSection />
@@ -1203,49 +1112,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Enhanced CTA Banner */}
-      <section className="cta-banner-enhanced relative overflow-hidden">
-        {/* Animated Background Mesh */}
-        <div className="cta-background-mesh" />
 
-        {/* Glowing Orbs */}
-        <div className="cta-glow-orb" />
-        <div className="cta-glow-orb" />
-        <div className="cta-glow-orb" />
-
-        {/* Content */}
-        <div className="cta-content-wrapper">
-          <h2 className="cta-headline">
-            Ready to Find Your Car?
-          </h2>
-          <p className="cta-subtext">
-            Join thousands of satisfied buyers across Nigeria
-          </p>
-
-          {/* CTA Buttons */}
-          <div className="cta-buttons-container">
-            <Link href="/cars">
-              <button className="cta-btn-primary inline-flex items-center gap-2">
-                <Search size={20} />
-                Browse Cars
-              </button>
-            </Link>
-          </div>
-
-          {/* Floating Icons */}
-          <div className="cta-floating-icons">
-            <div className="cta-icon">
-              <CarIcon size={32} className="text-accent-blue opacity-30" />
-            </div>
-            <div className="cta-icon">
-              <Shield size={32} className="text-accent-green opacity-30" />
-            </div>
-            <div className="cta-icon">
-              <Star size={32} className="text-secondary opacity-30" />
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Back to Top Button */}
       <button

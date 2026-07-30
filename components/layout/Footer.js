@@ -7,48 +7,48 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Car, Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin, MessageCircle, Shield, CheckCircle, Lock } from 'lucide-react'
 
 export default function Footer() {
   const [email, setEmail] = useState('')
   const currentYear = new Date().getFullYear()
 
-  const handleNewsletterSubmit = async (e) => {
-    e.preventDefault()
-
-    // Newsletter subscription functionality
-    // In production, integrate with email service (Mailchimp, SendGrid, etc.)
-    try {
-      // Placeholder for newsletter API integration
-      // await fetch('/api/newsletter/subscribe', { method: 'POST', body: JSON.stringify({ email }) })
-
-      alert('Thank you for subscribing! We\'ll keep you updated.')
-      setEmail('')
-    } catch (error) {
-      alert('Failed to subscribe. Please try again.')
-    }
-  }
-
   return (
-    <footer className="footer-enhanced">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Newsletter Signup */}
-        <div className="newsletter-container text-center">
-          <h3 className="newsletter-title">Stay Updated</h3>
-          <p className="newsletter-subtitle">Get the latest car listings delivered to your inbox</p>
-          <form onSubmit={handleNewsletterSubmit} className="newsletter-form max-w-md mx-auto">
-            <input
-              type="email"
-              placeholder="Enter your email address"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="newsletter-input"
-              required
-            />
-            <button type="submit" className="newsletter-button">
-              Subscribe
-            </button>
-          </form>
+    <footer className="footer-container relative pt-16 pb-8 border-t border-white/10 overflow-hidden">
+      {/* Background Effect */}
+      <div className="absolute inset-0 bg-gradient-to-b from-primary/80 to-primary pointer-events-none" />
+
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Newsletter Section */}
+        <div className="newsletter-card mb-12 p-8 rounded-2xl bg-gradient-to-r from-blue-900/40 via-purple-900/20 to-blue-900/40 border border-white/10 backdrop-blur-xl">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center">
+            <div>
+              <h3 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
+                <Mail className="text-accent-blue" size={24} />
+                Stay Updated on Exclusive Deals
+              </h3>
+              <p className="text-muted text-sm">
+                Subscribe to get new car listings, price drop alerts, and automotive market insights delivered to your inbox.
+              </p>
+            </div>
+            <form onSubmit={(e) => { e.preventDefault(); alert('Thank you for subscribing!') }} className="flex gap-2">
+              <input
+                type="email"
+                placeholder="Enter your email..."
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-accent-blue text-sm"
+                required
+              />
+              <button
+                type="submit"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl text-sm font-semibold transition-colors flex-shrink-0"
+              >
+                Subscribe
+              </button>
+            </form>
+          </div>
         </div>
 
         {/* Main Footer Content */}
@@ -64,6 +64,24 @@ export default function Footer() {
             <p className="text-sm text-muted mb-4">
               Nigeria's trusted platform for buying quality cars. Find your dream car today with verified listings and transparent pricing.
             </p>
+
+            {/* Official Brand Badges */}
+            <div className="flex items-center gap-3 mb-4">
+              <Image 
+                src="/justcars_official_seal.jpg" 
+                alt="JustCars Official Seal" 
+                width={50} 
+                height={50} 
+                className="rounded-full border border-yellow-500/50"
+              />
+              <Image 
+                src="/justcars_verified_stamp.jpg" 
+                alt="100% Verified Stamp" 
+                width={50} 
+                height={50} 
+                className="rounded-full border border-cyan-500/50"
+              />
+            </div>
 
             {/* Social Icons */}
             <div className="social-icons-container">
